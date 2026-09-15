@@ -5,6 +5,7 @@ import jakarta.ws.rs.Consumes;
 import jakarta.ws.rs.POST;
 import jakarta.ws.rs.Path;
 import jakarta.ws.rs.Produces;
+import jakarta.ws.rs.QueryParam;
 import jakarta.ws.rs.core.MediaType;
 
 @Path("/api/chat")
@@ -19,7 +20,10 @@ public class ChatResource {
     }
 
     @POST
-    public String chat(String message) {
-        return chatService.chat(message);
+    public String chat(
+            @QueryParam("conversationId") Long conversationId,
+            String message) {
+
+        return chatService.chat(conversationId, message);
     }
 }

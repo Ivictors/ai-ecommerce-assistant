@@ -1,6 +1,5 @@
 package com.victor.ecommerce.infrastructure.ai;
 
-import com.victor.ecommerce.infrastructure.ai.EcommerceAssistant;
 import jakarta.inject.Inject;
 import jakarta.ws.rs.*;
 import jakarta.ws.rs.core.MediaType;
@@ -14,7 +13,10 @@ public class ChatResource {
     EcommerceAssistant assistant;
 
     @POST
-    public String chat(String message) {
-        return assistant.chat(message);
+    public String chat(
+            @QueryParam("conversationId") String conversationId,
+            String message) {
+
+        return assistant.chat(conversationId, message);
     }
 }

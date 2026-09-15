@@ -1,6 +1,7 @@
 package com.victor.ecommerce.infrastructure.ai;
 
 import com.victor.ecommerce.infrastructure.ai.dto.UserIntent;
+import dev.langchain4j.service.MemoryId;
 import dev.langchain4j.service.SystemMessage;
 import dev.langchain4j.service.UserMessage;
 import io.quarkiverse.langchain4j.RegisterAiService;
@@ -48,7 +49,7 @@ import io.quarkiverse.langchain4j.RegisterAiService;
 public interface EcommerceAssistant {
 
     @UserMessage("{message}")
-    String chat(String message);
+    String chat(@MemoryId String memoryId, String message);
 
     @UserMessage("{message}")
     UserIntent classify(String message);

@@ -9,15 +9,17 @@ import java.util.List;
 @ApplicationScoped
 public class ConversationService {
 
-    private final ConversationRepository conversationRepository;
+    private final ConversationRepository repository;
 
-    public ConversationService(
-            ConversationRepository conversationRepository
-    ) {
-        this.conversationRepository = conversationRepository;
+    public ConversationService(ConversationRepository repository) {
+        this.repository = repository;
+    }
+
+    public Conversation findById(Long id) {
+        return repository.findById(id);
     }
 
     public List<Conversation> findByUserId(Long userId) {
-        return conversationRepository.findByUserId(userId);
+        return repository.findByUserId(userId);
     }
 }
