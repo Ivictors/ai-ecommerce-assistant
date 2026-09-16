@@ -7,6 +7,7 @@ import jakarta.transaction.Transactional;
 
 import java.math.BigDecimal;
 import java.util.List;
+import java.util.Optional;
 
 @ApplicationScoped
 public class ProductService {
@@ -23,6 +24,10 @@ public class ProductService {
 
     public Product findById(Long id) {
         return productRepository.findById(id);
+    }
+
+    public Optional<Product> findByName(String name) {
+        return productRepository.findByName(name);
     }
 
     @Transactional
