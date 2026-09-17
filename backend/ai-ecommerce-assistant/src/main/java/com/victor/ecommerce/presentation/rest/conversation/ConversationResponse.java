@@ -10,9 +10,7 @@ public record ConversationResponse(
         Instant createdAt
 ) {
 
-    public static ConversationResponse from(
-            Conversation conversation
-    ) {
+    public static ConversationResponse from(Conversation conversation) {
         return new ConversationResponse(
                 conversation.getId(),
                 conversation.getUser().getId(),
