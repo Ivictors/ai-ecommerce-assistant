@@ -10,3 +10,7 @@ quarkus.langchain4j.openai.chat-model.temperature=0.2
 
 quarkus.langchain4j.chat-memory.type=message-window
 quarkus.langchain4j.chat-memory.max-messages=10
+
+mp.jwt.verify.publickey.location=
+mp.jwt.verify.issuer=
+quarkus.smallrye-jwt.enabled=true
