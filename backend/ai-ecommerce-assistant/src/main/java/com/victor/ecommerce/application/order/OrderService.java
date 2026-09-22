@@ -16,13 +16,10 @@ public class OrderService {
         this.orderRepository = orderRepository;
     }
 
-    public Order findById(Long id) {
-        return orderRepository.findById(id);
-    }
-
     public List<Order> findByUserId(Long userId) {
         return orderRepository.findByUserId(userId);
     }
+
     public Optional<Order> findByIdForUser(
             Long orderId,
             Long userId) {
@@ -32,5 +29,4 @@ public class OrderService {
                 userId
         );
     }
-
 }
