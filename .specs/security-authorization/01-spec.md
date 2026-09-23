@@ -57,10 +57,14 @@ Garantir que somente usuários autenticados e autorizados acessem dados e opera�
 
 ## Non-Functional Requirements
 
-- Authorization decisions shall be deterministic for the same authenticated identity, resource, action, and current resource state.
-- Security failures shall not expose tokens, credentials, private keys, or unnecessary personal data in responses or logs.
-- Authorization logic shall be testable without requiring an LLM call.
-- Protected business operations shall not rely exclusively on client-side validation.
+Não há requisitos não funcionais quantitativos aprovados para esta milestone.
+
+## Security and Privacy Constraints
+
+- Decisões de autorização devem ser determinísticas para a mesma identidade autenticada, recurso, ação e estado atual do recurso; será verificado por testes.
+- Falhas de segurança não devem expor tokens, credenciais, chaves privadas ou dados pessoais desnecessários em respostas ou logs; será verificado por testes e revisão de segurança.
+- A autorização deve ser testável sem exigir uma chamada ao LLM; será verificado por testes automatizados.
+- Operações de negócio protegidas não devem depender exclusivamente de validação no cliente; será verificado por testes de backend e revisão de segurança.
 
 ## Glossary
 
@@ -84,6 +88,21 @@ Garantir que somente usuários autenticados e autorizados acessem dados e opera�
 - JWT verification configuration is environment-dependent and must not introduce secrets into the repository.
 - A role name alone may be insufficient for ownership; resource ownership must be checked separately.
 
+## Authorization Matrix — First Security Milestone
+
+| Resource | Access |
+|---|---|
+| `/api/security/public` | Public |
+| `/api/security/private` | Authenticated user |
+| `/api/orders` | Authenticated user and own resources only |
+| `/api/chat` | Authenticated user and own conversation only |
+| `/api/conversations` | Authenticated user and own conversations only |
+| `GET /api/products` | Public |
+| `POST /api/products` | `role=ADMIN` |
+| `DELETE /api/products/{id}` | `role=ADMIN` |
+
+Inventory, promotions, returns, payments, and reporting endpoints are outside this milestone and require their own specifications.
+
 ## Open Questions
 
 - Nenhuma.
@@ -91,25 +110,31 @@ Garantir que somente usuários autenticados e autorizados acessem dados e opera�
 ## Resolved Questions
 
 - **Q-001:** Which JWT claim is the authoritative identifier of the persisted `User`?
-  - Resolution: O identificador será numérico e virá do claim `sub` do JWT.
+  - Resolution: “idnumerico.”
+  - Interpretation: O identificador será numérico e virá do claim `sub` do JWT.
   - Resolved at: 2026-09-23
 
 - **Q-002:** What exact role/claim identifies an administrator?
-  - Resolution: O administrador será identificado pelo claim `role` com o valor `ADMIN`.
+  - Resolution: “role ADMIN”
+  - Interpretation: O administrador será identificado pelo claim `role` com o valor `ADMIN`.
   - Resolved at: 2026-09-23
 
 - **Q-003:** Which endpoints are public, customer-protected, or administrator-protected in the first security milestone?
-  - Resolution: A matriz inicial recomendada é: `/api/security/public` público; `/api/security/private` protegido para usuário autenticado; `/api/orders` protegido por ownership do cliente; `/api/chat` protegido por usuário autenticado e conversa pertencente ao cliente; `/api/conversations` protegido por ownership do cliente; `GET /api/products` público; `POST /api/products` e `DELETE /api/products/{id}` protegidos para `ADMIN`. Endpoints futuros de estoque, promoções, retornos, pagamentos e relatórios ficam fora desta milestone.
+  - Resolution: “Sugira” e, posteriormente, “matriz aprovado.”
+  - Interpretation: A matriz aprovada é a matriz registrada nesta especificação.
   - Resolved at: 2026-09-23
 
 - **Q-004:** Should `ConversationResource` continue accepting `userId` in the URL, or should it list conversations only for the authenticated user?
-  - Resolution: As conversas usarão exclusivamente o usuário autenticado; o `userId` fornecido pelo cliente não será usado como autoridade de ownership.
+  - Resolution: “usar exclusivamente o usuário autenticado.”
+  - Interpretation: As conversas usarão exclusivamente o usuário autenticado; o `userId` fornecido pelo cliente não será usado como autoridade de ownership.
   - Resolved at: 2026-09-23
 
 - **Q-005:** Which administrative capabilities are included in the first authorization milestone?
-  - Resolution: A primeira milestone protegerá somente as operações atualmente implementadas, principalmente criação e remoção de produtos. Estoque, promoções, retornos e relatórios terão issues próprias.
+  - Resolution: “proteger apenas as operações atualmente implementadas, principalmente criação e remoção de produtos, deixando estoque, promoções, retornos e relatórios para suas próprias issues.”
+  - Interpretation: A primeira milestone protegerá somente as operações atualmente implementadas, principalmente criação e remoção de produtos.
   - Resolved at: 2026-09-23
 
 - **Q-006:** What response semantics should be used when a resource exists but belongs to another customer?
-  - Resolution: O backend retornará `404 Not Found` para não revelar a existência de recursos privados de outro cliente.
+  - Resolution: “not found.”
+  - Interpretation: O backend retornará `404 Not Found` para não revelar a existência de recursos privados de outro cliente.
   - Resolved at: 2026-09-23
