@@ -1,0 +1,20 @@
+{
+  "repo_type": "brownfield",
+  "language": "Java 21",
+  "framework": "Quarkus 3.39.3",
+  "build_tool": "Maven Wrapper",
+  "frontend": "Angular planejado; não presente no estado atual",
+  "database": "PostgreSQL 16 com extensão PGVector",
+  "migration_tool": "Flyway",
+  "test_framework": "JUnit 5 + Mockito + Quarkus JUnit",
+  "coverage_tool": null,
+  "lint_tool": null,
+  "static_analysis": null,
+  "ci": null,
+  "integrations": [
+    "LangChain4j/OpenAI",
+    "SmallRye JWT",
+    "PostgreSQL/PGVector"
+  ],
+  "classified_at": "2026-09-23T14:28:09-03:00"
+}
