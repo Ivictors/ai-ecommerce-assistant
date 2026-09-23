@@ -14,14 +14,21 @@ public class CurrentUserService {
 
     public Long getUserId() {
 
-        if (securityIdentity.isAnonymous()) {
-            throw new IllegalStateException(
-                    "User is not authenticated"
-            );
+        if (securityIdentity.isAnonymous()
+                || securityIdentity.getPrincipal() == null) {
+            throw new UnauthenticatedUserException();
         }
 
-        return Long.valueOf(
-                securityIdentity.getPrincipal().getName()
-        );
+        String principalName = securityIdentity.getPrincipal().getName();
+
+        if (principalName == null || principalName.isBlank()) {
+            throw new UnauthenticatedUserException();
+        }
+
+        try {
+            return Long.valueOf(principalName);
+        } catch (NumberFormatException exception) {
+            throw new UnauthenticatedUserException();
+        }
     }
 }

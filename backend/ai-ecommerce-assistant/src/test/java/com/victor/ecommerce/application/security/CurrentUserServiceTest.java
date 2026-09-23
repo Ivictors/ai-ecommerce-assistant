@@ -31,4 +31,38 @@ class CurrentUserServiceTest {
         assertThrows(IllegalStateException.class,
                 () -> new CurrentUserService(identity).getUserId());
     }
+
+    @Test
+    void rejectsAuthenticatedIdentityWithoutPrincipal() {
+        SecurityIdentity identity = mock(SecurityIdentity.class);
+        when(identity.isAnonymous()).thenReturn(false);
+        when(identity.getPrincipal()).thenReturn(null);
+
+        assertThrows(IllegalStateException.class,
+                () -> new CurrentUserService(identity).getUserId());
+    }
+
+    @Test
+    void rejectsNonNumericPrincipal() {
+        SecurityIdentity identity = mock(SecurityIdentity.class);
+        Principal principal = mock(Principal.class);
+        when(identity.isAnonymous()).thenReturn(false);
+        when(identity.getPrincipal()).thenReturn(principal);
+        when(principal.getName()).thenReturn("not-a-number");
+
+        assertThrows(IllegalStateException.class,
+                () -> new CurrentUserService(identity).getUserId());
+    }
+
+    @Test
+    void rejectsEmptyPrincipal() {
+        SecurityIdentity identity = mock(SecurityIdentity.class);
+        Principal principal = mock(Principal.class);
+        when(identity.isAnonymous()).thenReturn(false);
+        when(identity.getPrincipal()).thenReturn(principal);
+        when(principal.getName()).thenReturn("   ");
+
+        assertThrows(IllegalStateException.class,
+                () -> new CurrentUserService(identity).getUserId());
+    }
 }
