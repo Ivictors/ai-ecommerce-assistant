@@ -1,77 +1,77 @@
-# Revisão da Especificação — Autenticação e Autorização
+# Specification Review — Authentication and Authorization
 
-Spec revisada: `.specs/security-authorization/01-spec.md`
-Data: 2026-09-23
+Spec reviewed: `.specs/security-authorization/01-spec.md`
+Date: 2026-09-23
 
 ## Checklist
 
 ### Goal clarity
 
-- [PASS] O objetivo está escrito em termos visíveis para o usuário.
-- [PASS] O objetivo está em um único parágrafo.
-- [PASS] Um novo membro consegue entender o propósito da funcionalidade.
+- [PASS] The goal is written in user-visible terms.
+- [PASS] The goal is one paragraph.
+- [PASS] A new team member can understand the feature purpose.
 
 ### Acceptance criteria quality
 
-- [PASS] Todos os ACs usam uma forma EARS-lite válida.
-- [PASS] Todos os ACs possuem IDs estáveis AC-NNN.
-- [PASS] Os ACs são suficientemente atômicos para orientar testes.
-- [PASS] Os ACs são verificáveis por comportamento observável.
-- [PASS] Não há nomes de classes, métodos ou bibliotecas nos ACs.
-- [PASS] Não há AC puramente subjetivo.
-- [PASS] Há caminhos de sucesso, falha de autenticação/autorização e edge cases de ownership.
-- [PASS] Não foram identificados ACs duplicados; há sobreposição intencional entre regras gerais e específicas de ownership.
+- [PASS] Every AC uses a valid EARS-lite shape.
+- [PASS] Every AC has a stable AC-NNN ID.
+- [PASS] The ACs are atomic enough to guide tests.
+- [PASS] The ACs are verifiable through observable behavior.
+- [PASS] No AC leaks class, method, or library names.
+- [PASS] No AC is purely subjective.
+- [PASS] Happy paths, authentication/authorization failures, and ownership edge cases are covered.
+- [PASS] No duplicate ACs were identified; intentional overlap exists between general and ownership rules.
 
 ### Non-goals
 
-- [PASS] Os non-goals são explícitos e específicos.
-- [PASS] Os non-goals cobrem login, JWT provider, OAuth, MFA, pagamentos, inventário e promoções.
+- [PASS] Non-goals are explicit and specific.
+- [PASS] Non-goals cover login, JWT provider, OAuth, MFA, payments, inventory, and promotions.
 
 ### Non-functional requirements
 
-- [PASS] Não há NFRs quantitativos aprovados para esta milestone; as restrições de segurança e privacidade foram movidas para uma seção própria e possuem método de verificação por testes/revisão.
+- [PASS] No quantitative NFRs are approved for this milestone; security and privacy constraints have a dedicated section with test/review verification methods.
 
 ### Glossary
 
-- [PASS] Os termos principais de autenticação, autorização, ownership e AI Tool estão definidos.
-- [PASS] As definições não dependem de termos indefinidos relevantes.
+- [PASS] Authentication, authorization, ownership, and AI Tool terms are defined.
+- [PASS] Definitions do not rely on relevant undefined terms.
 
 ### Source
 
-- [PASS] A issue #2 e sua URL estão registradas.
-- [PASS] A data de snapshot está registrada.
+- [PASS] Issue #2 and its URL are recorded.
+- [PASS] The snapshot date is recorded.
 
 ### Open questions
 
-- [PASS] Não há perguntas com status `open`.
-- [PASS] As resoluções Q-001 a Q-006 registram as respostas originais do usuário e uma interpretação explícita quando necessário.
+- [PASS] No question has status `open`.
+- [PASS] Resolutions Q-001 through Q-006 record the user's original answers and explicit interpretations where needed.
 
 ### Completeness
 
-- [PASS] O comportamento para credencial inválida, expirada e usuário anônimo está coberto.
-- [PASS] O comportamento de sucesso para cliente e administrador está coberto.
-- [PASS] O comportamento obrigatório e os limites da primeira milestone estão identificados.
-- [PASS] AC-015 declara a dependência do contrato de erros HTTP; a issue #5 permanece uma dependência de implementação e deverá estar aprovada antes do código final.
-- [PASS] Não há linguagem especulativa sem Q-NNN ou non-goal.
+- [PASS] Invalid, expired, and anonymous authentication behavior is covered.
+- [PASS] Customer and administrator success behavior is covered.
+- [PASS] Mandatory behavior and first-milestone boundaries are identified.
+- [PASS] AC-015 declares its dependency on the HTTP error contract; issue #5 must be approved before final implementation.
+- [PASS] No speculative language exists without a Q-NNN or non-goal entry.
 
 ## Summary of findings
 
 ### Must-fix
 
-Nenhum.
+None.
 
 ### Should-fix
 
-- Indicar quais ACs serão validados por testes unitários, testes REST e testes de integração durante o design técnico.
+- During technical design, map each AC to unit, REST, or integration tests.
 
 ### Nit
 
-- Padronizar o idioma dos ACs; atualmente eles estão em inglês enquanto o restante da especificação está em português.
+- None.
 
 ## Verdict
 
-**PASS** — a especificação está pronta para o design técnico.
+**PASS** — the specification is ready for technical design.
 
-## Required next action
+## Next action
 
-Seguir para o design técnico SLDD-02, mantendo a issue #5 como dependência para o contrato final de erros HTTP.
+Proceed to SLDD-02 technical design while keeping issue #5 as a dependency for the final HTTP error contract.

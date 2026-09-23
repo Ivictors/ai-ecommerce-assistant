@@ -1,13 +1,13 @@
-# ADR-002: Enforçar ownership nos casos de uso da aplicação
+# ADR-002: Enforce ownership in application use cases
 
 ## Status
 Accepted
 
 ## Context
-Anotações REST protegem a entrada, mas não garantem que um recurso carregado pertença ao usuário autenticado nem protegem chamadas internas/Tools.
+REST annotations protect the entry point, but they do not guarantee that a loaded resource belongs to the authenticated user or protect internal/Tool calls.
 
 ## Decision
-Ownership será validado em application services/use cases, usando a identidade autenticada e consultas filtradas por proprietário quando possível.
+Ownership will be validated in application services/use cases, using the authenticated identity and owner-filtered queries where possible.
 
 ## Consequences
-O controle permanece aplicável a REST e IA, mas exige que cada caso de uso declare explicitamente seu contexto de usuário.
+The control applies to REST and AI, but requires each use case to declare its user context explicitly.

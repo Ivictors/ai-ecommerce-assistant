@@ -1,16 +1,16 @@
-# Dívida Técnica Conhecida
+# Known Technical Debt
 
-- [ ] Completar autenticação e autorização para chat, conversas e operações administrativas.
-- [ ] Definir resolução do principal JWT para o usuário persistido.
-- [ ] Reforçar ownership de conversas e remover confiança em `userId` fornecido pelo cliente.
-- [ ] Definir e implementar contrato padronizado de erros HTTP.
-- [ ] Definir criação de conversas e persistência de mensagens.
-- [ ] Adicionar testes REST de integração e decidir sobre Testcontainers.
-- [ ] Configurar cobertura de testes, caso o projeto aprove um threshold.
-- [ ] Avaliar lint, formatação e análise estática.
-- [ ] Criar pipeline CI para testes e gates aprovados.
-- [ ] Revisar o warning de agente dinâmico do Mockito/Byte Buddy.
-- [ ] Avaliar a separação entre entidades JPA e modelo de domínio antes de aumentar a complexidade.
-- [ ] Implementar frontend Angular, atualmente ausente do repositório.
-- [ ] Atualizar README com arquitetura, execução, segurança, Docker e processo SLDD.
-- [ ] Definir RAG, ingestão documental, permissões e separação entre conhecimento e estado transacional.
+- [ ] Complete authentication and authorization for chat, conversations, and administrative operations.
+- [ ] Define how the JWT principal resolves to the persisted user.
+- [ ] Enforce conversation ownership and stop trusting client-provided `userId`.
+- [ ] Define and implement a standardized HTTP error contract.
+- [ ] Define conversation creation and message persistence.
+- [ ] Add REST integration tests and decide whether to use Testcontainers.
+- [ ] Configure test coverage if the project approves a threshold.
+- [ ] Evaluate linting, formatting, and static analysis.
+- [ ] Create a CI pipeline for approved tests and quality gates.
+- [ ] Review the Mockito/Byte Buddy dynamic-agent warning.
+- [ ] Evaluate separating JPA entities from the domain model before adding complexity.
+- [ ] Implement the Angular frontend, which is currently absent.
+- [ ] Update the README with architecture, execution, security, Docker, and SLDD workflow.
+- [ ] Define RAG, document ingestion, permissions, and separation between knowledge and transactional state.

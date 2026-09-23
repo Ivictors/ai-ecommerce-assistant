@@ -420,15 +420,15 @@ Use Conventional Commits.
 
 Examples:
 
-`feat: adiciona reserva de estoque`
+`feat: add inventory reservation`
 
-`fix: impede reserva acima do estoque disponível`
+`fix: prevent reservation above available stock`
 
-`test: adiciona cenarios de expiracao da reserva`
+`test: add reservation expiration scenarios`
 
-`refactor: separa calculo de promocao`
+`refactor: separate promotion calculation`
 
-`docs: documenta ciclo de vida do pedido`
+`docs: document order lifecycle`
 
 Keep unrelated changes in separate commits.
 

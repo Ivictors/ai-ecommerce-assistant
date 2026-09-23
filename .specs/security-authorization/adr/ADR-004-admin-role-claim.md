@@ -1,13 +1,13 @@
-# ADR-004: Identificar administrador pelo claim de role verificado
+# ADR-004: Identify administrators through the verified role claim
 
 ## Status
 Accepted
 
 ## Context
-A primeira milestone precisa proteger mutações de catálogo já existentes sem criar um novo modelo de administração não aprovado.
+The first milestone must protect existing catalog mutations without creating an unapproved administration model.
 
 ## Decision
-O administrador será identificado pelo claim verificado `role` com valor `ADMIN`. O backend nunca aceitará role do corpo, query ou frontend.
+The administrator will be identified by the verified `role` claim with value `ADMIN`. The backend will never accept a role from the body, query, or frontend.
 
 ## Consequences
-A configuração do provedor JWT precisa emitir e assinar esse claim; mudanças futuras para role persistida exigirão nova decisão e revisão.
+The JWT provider must issue and sign this claim; future changes to persisted roles require a new decision and review.

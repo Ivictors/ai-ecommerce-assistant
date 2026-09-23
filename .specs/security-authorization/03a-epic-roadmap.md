@@ -1,41 +1,41 @@
-# Roadmap Epic — Autenticação e Autorização
+# Epic Roadmap — Authentication and Authorization
 
 ## Slices
 
-### S-001 — Identidade autenticada
+### S-001 — Authenticated identity
 
-- Escopo: resolver `SecurityIdentity`, validar `sub` numérico e representar usuário anônimo/autenticado.
+- Scope: resolve `SecurityIdentity`, validate numeric `sub`, and represent anonymous/authenticated users.
 - AC focus: AC-001, AC-002, AC-003.
-- Dependências: configuração JWT existente.
-- Intenção: estabelecer uma fonte única e confiável para o usuário atual.
+- Dependencies: existing JWT configuration.
+- Intent: establish one trusted source for the current user.
 
-### S-002 — Matriz de endpoint e administrador
+### S-002 — Endpoint and administrator matrix
 
-- Escopo: aplicar a matriz pública, cliente e `role=ADMIN` aos endpoints atuais.
+- Scope: apply the public, customer, and `role=ADMIN` matrix to current endpoints.
 - AC focus: AC-009, AC-010, AC-011, AC-014.
-- Dependências: S-001; contrato de erros da issue #5.
-- Intenção: proteger a fronteira REST sem confiar no frontend.
+- Dependencies: S-001; error contract from issue #5.
+- Intent: protect the REST boundary without trusting the frontend.
 
-### S-003 — Ownership de pedidos e conversas
+### S-003 — Order and conversation ownership
 
-- Escopo: remover confiança em `userId` fornecido pelo cliente e garantir acesso somente aos recursos próprios.
+- Scope: stop trusting client-provided `userId` and allow access only to owned resources.
 - AC focus: AC-004, AC-005, AC-006, AC-007, AC-008.
-- Dependências: S-001; S-002.
-- Intenção: fechar o risco de acesso cruzado entre clientes.
+- Dependencies: S-001; S-002.
+- Intent: close the risk of cross-customer access.
 
-### S-004 — Autorização de Tools e fluxos de IA
+### S-004 — Tool and AI flow authorization
 
-- Escopo: garantir que Tools usem application services e preservem identidade/ownership.
+- Scope: ensure Tools use application services and preserve identity/ownership.
 - AC focus: AC-012, AC-013, AC-014.
-- Dependências: S-001; S-003.
-- Intenção: impedir bypass de segurança pelo LLM.
+- Dependencies: S-001; S-003.
+- Intent: prevent security bypass through the LLM.
 
-### S-005 — Validação integrada e observabilidade de segurança
+### S-005 — Integrated validation and security observability
 
-- Escopo: testes REST/integrados, respostas de erro, logs seguros e validação do conjunto.
+- Scope: REST/integration tests, error responses, safe logs, and end-to-end validation.
 - AC focus: AC-015 e todos os ACs anteriores.
-- Dependências: S-001 a S-004; issue #5.
-- Intenção: demonstrar que a segurança funciona na fronteira real da aplicação.
+- Dependencies: S-001 through S-004; issue #5.
+- Intent: demonstrate that security works at the real application boundary.
 
 ## Dependency graph
 
@@ -51,15 +51,15 @@ S-001
 
 ## Milestone mapping
 
-- Milestone M1: S-001 e S-002 — identidade e endpoints.
-- Milestone M2: S-003 — ownership de dados privados.
-- Milestone M3: S-004 — IA segura.
-- Milestone M4: S-005 — validação e gate de conclusão.
+- Milestone M1: S-001 and S-002 — identity and endpoints.
+- Milestone M2: S-003 — private-data ownership.
+- Milestone M3: S-004 — secure AI.
+- Milestone M4: S-005 — validation and completion gate.
 
 ## Exit criteria
 
-- Todos os ACs possuem tarefas e testes rastreáveis.
-- Testes unitários e REST/security passam.
-- Nenhum endpoint da matriz permanece sem proteção correspondente.
-- Nenhuma Tool acessa repositório ou banco diretamente.
-- O contrato de erro está aprovado e utilizado.
+- All ACs have traceable tasks and tests.
+- Unit and REST/security tests pass.
+- No endpoint in the matrix remains without corresponding protection.
+- No Tool accesses a repository or database directly.
+- The error contract is approved and used.

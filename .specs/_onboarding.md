@@ -1,115 +1,95 @@
-# Onboarding do Código Existente
+# Existing Codebase Onboarding
 
-Data do levantamento: 2026-09-23
-Escopo: repositório `ai-ecommerce-assistant`, com foco atual no backend em `backend/ai-ecommerce-assistant/`.
+Assessment date: 2026-09-23
+Scope: `ai-ecommerce-assistant`, currently focused on `backend/ai-ecommerce-assistant/`.
 
-## 1. Classificação e estrutura
+## 1. Classification and structure
 
-- Tipo: brownfield; já existem código, banco, migrações, testes e commits de funcionalidade.
-- Forma atual: repositório único com backend Quarkus e arquivos de infraestrutura no diretório raiz.
-- Backend: aplicação Java 21/Quarkus, empacotada com Maven Wrapper.
-- Frontend: previsto nos documentos e no roadmap, mas não há `frontend/package.json` nem código Angular no estado atual.
-- Banco: PostgreSQL com imagem `pgvector/pgvector:pg16` no `docker-compose.yml`.
-- Migrações: Flyway em `backend/ai-ecommerce-assistant/src/main/resources/db/migration/`.
-- Entrada de desenvolvimento: `backend/ai-ecommerce-assistant/mvnw.cmd quarkus:dev` no Windows.
-- Validação principal: `backend/ai-ecommerce-assistant/mvnw.cmd test`.
+- Type: brownfield; code, database migrations, tests, and feature commits already exist.
+- Shape: single repository with a Quarkus backend and infrastructure files at the root.
+- Backend: Java 21/Quarkus application built with the Maven Wrapper.
+- Frontend: planned by the documents and roadmap, but no `frontend/package.json` or Angular source exists currently.
+- Database: PostgreSQL using `pgvector/pgvector:pg16` in `docker-compose.yml`.
+- Migrations: Flyway under `backend/ai-ecommerce-assistant/src/main/resources/db/migration/`.
+- Development entry point: `backend/ai-ecommerce-assistant/mvnw.cmd quarkus:dev` on Windows.
+- Main validation: `backend/ai-ecommerce-assistant/mvnw.cmd test`.
 
-Estrutura relevante:
+## 2. Current architecture
 
-```text
-AGENTS.md
-specs/
-.specs/
-backend/ai-ecommerce-assistant/
-  pom.xml
-  src/main/java/com/victor/ecommerce/
-    domain/
-    application/
-    infrastructure/
-    presentation/rest/
-  src/main/resources/db/migration/
-  src/test/java/com/victor/ecommerce/
-docker-compose.yml
-README.md
-```
+The code partially follows the separation defined in `AGENTS.md`:
 
-## 2. Arquitetura atual
+- `domain`: entities and business states such as `Order`, `Product`, `Conversation`, and `User`.
+- `application`: use-case coordination such as `OrderService`, `ConversationService`, `ChatApplicationService`, and `CurrentUserService`.
+- `infrastructure`: Panache persistence, LangChain4j/OpenAI integration, and Tools.
+- `presentation/rest`: HTTP resources, DTOs, and transport-level validation/access control.
 
-O código segue, de forma parcial, a separação definida em `AGENTS.md`:
+Observed flows:
 
-- `domain`: entidades e estados de negócio, como `Order`, `Product`, `Conversation` e `User`.
-- `application`: coordenação de casos de uso, como `OrderService`, `ConversationService`, `ChatApplicationService` e `CurrentUserService`.
-- `infrastructure`: persistência Panache, integração LangChain4j/OpenAI e Tools.
-- `presentation/rest`: recursos HTTP, DTOs e validação/controle de acesso de transporte.
+- Orders: REST → application → repository, with filtering by authenticated user in `OrderService`.
+- Chat: REST → `ChatApplicationService` → `EcommerceAssistant`; the duplicate infrastructure REST resource was removed.
+- AI: `EcommerceAssistant` uses LangChain4j memory and product/order Tools.
+- Persistence: JPA/Panache entities and repositories under `infrastructure/persistence`.
+- Security: SmallRye JWT is a dependency; `CurrentUserService` reads the principal as a numeric identifier.
 
-Fluxos observados:
+## 3. Conventions to preserve
 
-- Pedido: REST → aplicação → repositório, com filtro por usuário autenticado em `OrderService`.
-- Chat: REST → `ChatApplicationService` → `EcommerceAssistant`; o recurso REST duplicado na infraestrutura foi removido.
-- IA: `EcommerceAssistant` usa memória LangChain4j e Tools de produto/pedido.
-- Persistência: entidades JPA/Panache e repositórios em `infrastructure/persistence`.
-- Segurança: SmallRye JWT está configurado como dependência; `CurrentUserService` lê o principal como identificador numérico.
+- Java 21 and four-space indentation.
+- One public class per file.
+- `*Resource`, `*Service`, `*Repository`, `*Request`, and `*Response` naming.
+- Thin REST resources delegating rules to application/domain layers.
+- JUnit 5 and Mockito tests organized by matching package.
+- Versioned Flyway migrations; never edit migrations that may already be applied.
+- Never trust the frontend or LLM for price, stock, payment, authorization, or ownership.
+- Do not expose persistence entities directly when DTOs are required.
 
-## 3. Convenções a preservar
+## 4. Integrations and entry points
 
-- Java 21 e quatro espaços de indentação.
-- Uma classe pública por arquivo.
-- Nomes `*Resource`, `*Service`, `*Repository`, `*Request` e `*Response`.
-- Recursos REST finos, delegando regras para a aplicação/domínio.
-- Testes JUnit 5 com Mockito, organizados por pacote correspondente.
-- Migrações Flyway versionadas; não alterar migrações já aplicadas.
-- Não confiar em frontend ou LLM para preço, estoque, pagamento, autorização ou ownership.
-- Não expor entidades de persistência diretamente como contrato público quando DTOs forem necessários.
+- PostgreSQL/PGVector through Docker Compose.
+- Flyway startup migration according to the example configuration.
+- LangChain4j/OpenAI through `quarkus-langchain4j-openai`.
+- JWT through `quarkus-smallrye-jwt`.
+- REST through Quarkus REST/Jackson.
+- Hibernate ORM Panache for persistence.
+- No messaging, CI/CD, or implemented frontend was identified.
 
-## 4. Integrações e pontos de entrada
+## 5. Quality baseline
 
-- PostgreSQL/PGVector via Docker Compose.
-- Flyway executado no início da aplicação conforme configuração de exemplo.
-- LangChain4j/OpenAI via `quarkus-langchain4j-openai`.
-- JWT via `quarkus-smallrye-jwt`.
-- REST via Quarkus REST/Jackson.
-- Persistência via Hibernate ORM Panache.
-- Não há mensageria, CI/CD ou frontend implementado identificados neste levantamento.
-
-## 5. Baseline de qualidade
-
-Comando executado em 2026-09-23:
+Command executed on 2026-09-23:
 
 ```text
 backend/ai-ecommerce-assistant/.\mvnw.cmd test
 ```
 
-Resultado: 10 testes executados, 10 aprovados, 0 falhas, 0 erros.
+Result: 10 tests executed, 10 passed, 0 failures, 0 errors.
 
-O build exibiu avisos do Mockito/Byte Buddy sobre self-attach de agente Java. Eles não falharam o build, mas devem ser acompanhados quando o JDK restringir dynamic agent loading.
+The build reported Mockito/Byte Buddy self-attach warnings. They did not fail the build but should be monitored as future JDKs restrict dynamic agent loading.
 
-Não foram encontrados comandos ou configurações de lint, formatter, cobertura, SpotBugs, Checkstyle ou pipeline GitHub Actions.
+No lint, formatter, coverage, SpotBugs, Checkstyle, or GitHub Actions configuration was found.
 
-## 6. Riscos, dívidas e desconhecidos
+## 6. Risks, debt, and unknowns
 
-- Autenticação/autorização ainda não está completa para chat, conversas e operações administrativas.
-- O contrato de resolução do principal JWT para `User` ainda precisa ser especificado e validado.
-- `ConversationResource` expõe consulta por `userId` informado na URL; ownership deve ser reforçado pelo usuário autenticado.
-- `ProductResource` ainda possui operações que precisam de decisão e proteção administrativa.
-- O contrato padronizado de erros HTTP ainda não existe.
-- O comportamento de criação de conversa e persistência de mensagens ainda não está definido.
-- A implementação atual usa entidades JPA também como parte do domínio; qualquer refatoração deve ser precedida por decisão arquitetural.
-- A configuração de exemplo contém placeholders e precisa permanecer sem segredos reais.
-- Não há testes REST de integração nem ambiente automatizado de banco/Testcontainers identificado.
-- Não há cobertura de código mensurada.
-- O frontend Angular está planejado, mas ausente no estado atual.
-- O README ainda é o template inicial do Quarkus e não descreve o domínio, segurança, Docker ou fluxo SLDD.
-- A remoção de `.env-example` continua como alteração pré-existente fora do commit de onboarding.
+- Authentication and authorization are not complete for chat, conversations, or administrative operations.
+- The JWT principal-to-`User` resolution contract needed specification and validation.
+- `ConversationResource` accepts a client-supplied `userId`; ownership must be enforced through the authenticated identity.
+- `ProductResource` operations needed an administrative boundary.
+- No standardized HTTP error contract exists yet.
+- Conversation creation and message persistence are not defined.
+- JPA entities also serve as part of the domain model; refactoring requires an architectural decision.
+- Example configuration contains placeholders and must never contain real secrets.
+- No REST integration tests or automated database/Testcontainers setup was identified.
+- Code coverage is not measured.
+- Angular is planned but absent.
+- The README remains the initial Quarkus template and does not describe the domain, security, Docker, or SLDD workflow.
 
-## 7. Lacunas para o fluxo SLDD
+## 7. Workflow gaps
 
-- [ ] Criar artefatos `.specs/<feature-id>/` para cada feature.
-- [ ] Definir baseline de integração com banco e decidir sobre Testcontainers.
-- [ ] Adicionar lint/format/quality gates somente após decisão do projeto.
-- [ ] Adicionar CI que execute os comandos aprovados.
-- [ ] Criar matriz de rastreabilidade entre requisitos, tarefas, testes e código.
-- [ ] Formalizar contrato de erros, segurança e ownership antes de RAG.
+- [ ] Create `.specs/<feature-id>/` artifacts for each feature.
+- [ ] Define a database integration baseline and decide on Testcontainers.
+- [ ] Add lint/format/quality gates only after project approval.
+- [ ] Add CI for approved commands.
+- [ ] Create a requirement/task/test/code traceability matrix.
+- [ ] Formalize error, security, and ownership contracts before RAG.
 
-## 8. Contexto para as próximas etapas
+## 8. Context for subsequent work
 
-A próxima unidade de trabalho é a conclusão da autenticação e autorização. Ela deve começar por uma especificação de intenção e critérios de aceitação, passar por revisão e design, e só então gerar testes e implementação. O baseline atual está verde para testes unitários existentes, mas não representa ainda uma validação completa de segurança, banco, REST ou integração com OpenAI.
+The next work unit is authentication and authorization. It must begin with product intent and acceptance criteria, proceed through review and design, and only then generate tests and implementation. The current unit-test baseline is green, but it does not represent complete security, database, REST, or OpenAI integration validation.

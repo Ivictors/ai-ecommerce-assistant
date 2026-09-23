@@ -1,13 +1,13 @@
-# ADR-003: Retornar 404 para recursos privados de outro usuário
+# ADR-003: Return 404 for another user's private resources
 
 ## Status
 Accepted
 
 ## Context
-Um `403` pode revelar que um identificador de recurso existe mesmo quando o cliente não possui acesso.
+A `403` may reveal that a resource identifier exists even when the client has no access.
 
 ## Decision
-Pedidos, conversas e outros recursos privados de outro cliente serão tratados como não encontrados e retornarão `404 Not Found`.
+Orders, conversations, and other private resources belonging to another customer will be treated as not found and return `404 Not Found`.
 
 ## Consequences
-Há menor vazamento de existência de recursos, mas clientes não distinguem recurso inexistente de recurso pertencente a outro usuário.
+This reduces resource-existence disclosure, but clients cannot distinguish a missing resource from one belonging to another user.

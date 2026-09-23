@@ -1,13 +1,13 @@
-# ADR-001: Usar o JWT `sub` como identidade numérica do usuário
+# ADR-001: Use JWT `sub` as the numeric user identity
 
 ## Status
 Accepted
 
 ## Context
-O backend precisa associar a requisição autenticada ao `User` persistido sem confiar em identificadores enviados pelo cliente.
+The backend must associate the authenticated request with the persisted `User` without trusting identifiers supplied by the client.
 
 ## Decision
-O claim verificado `sub` conterá o identificador numérico do `User` atual.
+The verified `sub` claim will contain the numeric identifier of the current `User`.
 
 ## Consequences
-O mapeamento é direto e evita lookup por dados mutáveis, mas tokens com `sub` inválido devem ser rejeitados e a configuração do provedor precisa manter esse contrato.
+The mapping is direct and avoids lookups by mutable data, but tokens with an invalid `sub` must be rejected and the provider configuration must preserve this contract.

@@ -1,4 +1,4 @@
-# Design Técnico Epic — Autenticação e Autorização
+# Epic Technical Design — Authentication and Authorization
 
 Feature: `.specs/security-authorization/01-spec.md`
 Review: `.specs/security-authorization/02-spec-review.md`
@@ -117,7 +117,7 @@ For AI:
 
 ## Open Questions
 
-Nenhuma. Todas as decisões necessárias para o design de alto nível foram aprovadas na especificação.
+None. All decisions required for the high-level design were approved in the specification.
 
 ## Resolved Questions
 

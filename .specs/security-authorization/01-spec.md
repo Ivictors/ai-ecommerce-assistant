@@ -1,31 +1,31 @@
-# Especificação de Intenção — Autenticação e Autorização
+# Product Intent Specification — Authentication and Authorization
 
 ## Source
 
 - Tracker: GitHub
-- ID: #2 — `[SLDD-01] Especificar autenticação e autorização`
+- ID: #2 — `[SLDD-01] Specify authentication and authorization`
 - URL: https://github.com/Ivictors/ai-ecommerce-assistant/issues/2
 - Snapshot date: 2026-09-23
 
 ## Goal
 
-Garantir que somente usuários autenticados e autorizados acessem dados e operações protegidos, preservando o isolamento dos dados privados de cada cliente e impedindo que frontend, LLM ou Tools ultrapassem as permissões definidas pelo backend.
+Ensure that only authenticated and authorized users can access protected data and operations, preserve isolation between customers' private data, and prevent the frontend, LLM, or Tools from bypassing backend permissions.
 
 ## Target Users
 
-- Visitante não autenticado.
-- Cliente autenticado.
-- Administrador autenticado.
-- Sistemas internos que processam chamadas autenticadas em nome de um usuário.
+- Unauthenticated visitor.
+- Authenticated customer.
+- Authenticated administrator.
+- Internal systems processing authenticated requests on behalf of a user.
 
 ## Success Metrics
 
-- Todos os endpoints protegidos possuem uma regra explícita de autenticação e autorização.
-- Nenhum cliente autenticado consegue consultar ou alterar dados privados pertencentes a outro cliente.
-- Nenhum cliente comum consegue executar operações administrativas.
-- Chamadas anônimas a recursos protegidos são rejeitadas.
-- Chamadas com credenciais inválidas ou expiradas são rejeitadas.
-- As regras de autorização possuem testes automatizados para cada perfil e limite de ownership.
+- Every protected endpoint has an explicit authentication and authorization rule.
+- No authenticated customer can read or change private data belonging to another customer.
+- No regular customer can execute administrative operations.
+- Anonymous requests to protected resources are rejected.
+- Requests with invalid or expired credentials are rejected.
+- Authorization rules have automated tests for each role and ownership boundary.
 
 ## Acceptance Criteria (EARS-lite)
 
@@ -48,33 +48,33 @@ Garantir que somente usuários autenticados e autorizados acessem dados e opera�
 ## Non-Goals
 
 - Implementing or replacing the JWT provider.
-- Creating a customer registration or login flow.
+- Creating customer registration or login.
 - Designing password storage or password recovery.
 - Implementing OAuth, social login, or multi-factor authentication.
 - Implementing payment, refund, return, inventory, or promotion workflows.
-- Defining the complete API error payload; this belongs to the error-contract work, while this specification only requires its use.
-- Implementing authorization changes before this specification and its review are approved.
+- Defining the complete API error payload; this belongs to the error-contract work.
+- Implementing authorization before this specification and its review are approved.
 
 ## Non-Functional Requirements
 
-Não há requisitos não funcionais quantitativos aprovados para esta milestone.
+No quantitative non-functional requirements are approved for this milestone.
 
 ## Security and Privacy Constraints
 
-- Decisões de autorização devem ser determinísticas para a mesma identidade autenticada, recurso, ação e estado atual do recurso; será verificado por testes.
-- Falhas de segurança não devem expor tokens, credenciais, chaves privadas ou dados pessoais desnecessários em respostas ou logs; será verificado por testes e revisão de segurança.
-- A autorização deve ser testável sem exigir uma chamada ao LLM; será verificado por testes automatizados.
-- Operações de negócio protegidas não devem depender exclusivamente de validação no cliente; será verificado por testes de backend e revisão de segurança.
+- Authorization decisions must be deterministic for the same identity, resource, action, and resource state; tests will verify this.
+- Security failures must not expose tokens, credentials, private keys, or unnecessary personal data in responses or logs; tests and security review will verify this.
+- Authorization must be testable without an LLM call; automated tests will verify this.
+- Protected operations must not rely exclusively on client-side validation; backend tests and security review will verify this.
 
 ## Glossary
 
 - **Authentication** — Verification that a request is associated with a valid authenticated identity.
-- **Authorization** — Decision about whether an authenticated identity may perform a specific action on a specific resource.
+- **Authorization** — Decision about whether an authenticated identity may perform an action on a resource.
 - **Visitor** — Request without a valid authenticated identity.
-- **Customer** — Authenticated user who accesses their own e-commerce data and permitted customer operations.
+- **Customer** — Authenticated user who accesses their own e-commerce data and permitted operations.
 - **Administrator** — Authenticated identity with explicitly approved administrative capabilities.
-- **Ownership** — Relationship between a private resource and the customer who is allowed to access it.
-- **Protected resource** — Endpoint or business operation that requires authentication and/or a specific role or ownership check.
+- **Ownership** — Relationship between a private resource and the customer allowed to access it.
+- **Protected resource** — Endpoint or business operation requiring authentication, a role, or ownership.
 - **Principal** — Identity represented by the authentication credential for the current request.
 - **JWT** — Signed token format used by the current technical setup to carry authentication claims.
 - **AI Tool** — Callable adapter used by the AI Service to request an application capability.
@@ -82,11 +82,11 @@ Não há requisitos não funcionais quantitativos aprovados para esta milestone.
 ## Risks and Assumptions
 
 - The current `CurrentUserService` converts the principal name directly to `Long`; this may not match the approved identity claim.
-- The current conversation endpoint accepts a `userId` path parameter, which can create an ownership risk if it is trusted.
-- The current product operations do not yet express an administrator boundary.
-- Payment and return resources are not fully implemented, so their authorization contract must remain applicable when those use cases are introduced.
-- JWT verification configuration is environment-dependent and must not introduce secrets into the repository.
-- A role name alone may be insufficient for ownership; resource ownership must be checked separately.
+- The current conversation endpoint accepts a `userId` path parameter, which creates an ownership risk if trusted.
+- Current product operations do not yet express an administrator boundary.
+- Payment and return resources are not fully implemented, so their authorization contract must remain applicable when introduced.
+- JWT verification configuration is environment-dependent and must not introduce secrets.
+- A role alone may be insufficient for ownership; resource ownership must be checked separately.
 
 ## Authorization Matrix — First Security Milestone
 
@@ -105,36 +105,31 @@ Inventory, promotions, returns, payments, and reporting endpoints are outside th
 
 ## Open Questions
 
-- Nenhuma.
+None.
 
 ## Resolved Questions
 
 - **Q-001:** Which JWT claim is the authoritative identifier of the persisted `User`?
   - Resolution: “idnumerico.”
-  - Interpretation: O identificador será numérico e virá do claim `sub` do JWT.
+  - Interpretation: The identifier is numeric and comes from the JWT `sub` claim.
   - Resolved at: 2026-09-23
-
 - **Q-002:** What exact role/claim identifies an administrator?
   - Resolution: “role ADMIN”
-  - Interpretation: O administrador será identificado pelo claim `role` com o valor `ADMIN`.
+  - Interpretation: The administrator is identified by the JWT `role` claim with value `ADMIN`.
   - Resolved at: 2026-09-23
-
 - **Q-003:** Which endpoints are public, customer-protected, or administrator-protected in the first security milestone?
-  - Resolution: “Sugira” e, posteriormente, “matriz aprovado.”
-  - Interpretation: A matriz aprovada é a matriz registrada nesta especificação.
+  - Resolution: “Suggest” and later “matrix approved.”
+  - Interpretation: The authorization matrix in this specification is approved.
   - Resolved at: 2026-09-23
-
 - **Q-004:** Should `ConversationResource` continue accepting `userId` in the URL, or should it list conversations only for the authenticated user?
-  - Resolution: “usar exclusivamente o usuário autenticado.”
-  - Interpretation: As conversas usarão exclusivamente o usuário autenticado; o `userId` fornecido pelo cliente não será usado como autoridade de ownership.
+  - Resolution: “use exclusively the authenticated user.”
+  - Interpretation: Conversations use only the authenticated user; client-provided `userId` is not an ownership authority.
   - Resolved at: 2026-09-23
-
 - **Q-005:** Which administrative capabilities are included in the first authorization milestone?
-  - Resolution: “proteger apenas as operações atualmente implementadas, principalmente criação e remoção de produtos, deixando estoque, promoções, retornos e relatórios para suas próprias issues.”
-  - Interpretation: A primeira milestone protegerá somente as operações atualmente implementadas, principalmente criação e remoção de produtos.
+  - Resolution: “protect only currently implemented operations, especially product creation and deletion, leaving inventory, promotions, returns, and reporting to their own issues.”
+  - Interpretation: The first milestone protects only currently implemented operations, especially product creation and deletion.
   - Resolved at: 2026-09-23
-
 - **Q-006:** What response semantics should be used when a resource exists but belongs to another customer?
   - Resolution: “not found.”
-  - Interpretation: O backend retornará `404 Not Found` para não revelar a existência de recursos privados de outro cliente.
+  - Interpretation: The backend returns `404 Not Found` to avoid revealing another customer's private resources.
   - Resolved at: 2026-09-23
