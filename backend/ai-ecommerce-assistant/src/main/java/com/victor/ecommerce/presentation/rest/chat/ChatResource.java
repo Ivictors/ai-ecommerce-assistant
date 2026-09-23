@@ -2,6 +2,7 @@ package com.victor.ecommerce.presentation.rest.chat;
 
 import com.victor.ecommerce.application.chat.ChatApplicationService;
 import jakarta.ws.rs.Consumes;
+import jakarta.ws.rs.BadRequestException;
 import jakarta.ws.rs.POST;
 import jakarta.ws.rs.Path;
 import jakarta.ws.rs.Produces;
@@ -23,6 +24,10 @@ public class ChatResource {
     public String chat(
             @QueryParam("conversationId") Long conversationId,
             String message) {
+
+        if (conversationId == null) {
+            throw new BadRequestException("conversationId is required");
+        }
 
         return chatService.chat(conversationId, message);
     }
