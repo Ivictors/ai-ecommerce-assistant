@@ -33,7 +33,7 @@
 ### S-005 — Integrated validation and security observability
 
 - Scope: REST/integration tests, error responses, safe logs, and end-to-end validation.
-- AC focus: AC-015 e todos os ACs anteriores.
+- AC focus: AC-015 and all previous ACs.
 - Dependencies: S-001 through S-004; issue #5.
 - Intent: demonstrate that security works at the real application boundary.
 

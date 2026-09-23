@@ -121,4 +121,4 @@ None. All decisions required for the high-level design were approved in the spec
 
 ## Resolved Questions
 
-- Q-001 a Q-006 permanecem resolvidas conforme `01-spec.md`.
+- Q-001 through Q-006 remain resolved as documented in `01-spec.md`.

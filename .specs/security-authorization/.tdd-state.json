@@ -1,0 +1,19 @@
+{
+  "feature_id": "security-authorization",
+  "slice_id": "S-001",
+  "active_task": null,
+  "tasks": {
+    "T-001": {
+      "phase": "pending",
+      "started_at": null,
+      "completed_at": null
+    },
+    "T-002": {
+      "phase": "pending",
+      "started_at": null,
+      "completed_at": null
+    }
+  },
+  "created_at": "2026-09-23T00:00:00-03:00",
+  "updated_at": "2026-09-23T00:00:00-03:00"
+}
