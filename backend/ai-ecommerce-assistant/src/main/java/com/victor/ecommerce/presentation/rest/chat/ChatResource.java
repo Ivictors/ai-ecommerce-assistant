@@ -1,6 +1,7 @@
 package com.victor.ecommerce.presentation.rest.chat;
 
 import com.victor.ecommerce.application.chat.ChatApplicationService;
+import jakarta.annotation.security.RolesAllowed;
 import jakarta.ws.rs.Consumes;
 import jakarta.ws.rs.BadRequestException;
 import jakarta.ws.rs.POST;
@@ -12,6 +13,7 @@ import jakarta.ws.rs.core.MediaType;
 @Path("/api/chat")
 @Produces(MediaType.TEXT_PLAIN)
 @Consumes(MediaType.TEXT_PLAIN)
+@RolesAllowed("USER")
 public class ChatResource {
 
     private final ChatApplicationService chatService;

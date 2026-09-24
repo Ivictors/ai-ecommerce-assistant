@@ -29,6 +29,28 @@
 
 T-001 and T-002 are sequential because T-002 depends on the failure contract from T-001.
 
+## S-002 — Endpoint and administrator matrix
+
+### T-003: Protect customer endpoints with the USER role
+
+- AC-IDs: AC-001, AC-002, AC-004, AC-011
+- Test-IDs: S002-T1, S002-T2, S002-T3
+- Files in scope: chat, conversation, and order REST resources; matching security tests
+- Dependencies: T-001, T-002
+- Gates: unit, REST
+- Rollback: revert commit; no schema change
+- Notes: Ownership filtering remains a later task; this task establishes the endpoint authentication boundary.
+
+### T-004: Protect product mutations with the ADMIN role
+
+- AC-IDs: AC-009, AC-010, AC-011, AC-014
+- Test-IDs: S002-T4, S002-T5
+- Files in scope: `ProductResource.java`; matching security tests
+- Dependencies: T-003
+- Gates: unit, REST
+- Rollback: revert commit; no schema change
+- Notes: Product reads remain public; only currently implemented mutations are administrative.
+
 ## Traceability status
 
 This file intentionally covers the first Epic slice only. AC-004 through AC-015 are mapped to later slices in `03a-epic-roadmap.md` and will receive tasks before their implementation begins.

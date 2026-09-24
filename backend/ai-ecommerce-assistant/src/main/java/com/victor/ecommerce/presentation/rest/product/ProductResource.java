@@ -2,6 +2,7 @@ package com.victor.ecommerce.presentation.rest.product;
 
 import com.victor.ecommerce.application.product.ProductService;
 import com.victor.ecommerce.domain.product.Product;
+import jakarta.annotation.security.RolesAllowed;
 import jakarta.validation.Valid;
 import jakarta.ws.rs.*;
 import jakarta.ws.rs.core.MediaType;
@@ -45,6 +46,7 @@ public class ProductResource {
     }
 
     @POST
+    @RolesAllowed("ADMIN")
     public Response create(@Valid CreateProductRequest request) {
 
         Product product = productService.create(
@@ -62,6 +64,7 @@ public class ProductResource {
 
     @DELETE
     @Path("/{id}")
+    @RolesAllowed("ADMIN")
     public Response delete(@PathParam("id") Long id) {
 
         boolean deleted = productService.delete(id);
