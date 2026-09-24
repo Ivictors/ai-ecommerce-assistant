@@ -51,6 +51,28 @@ T-001 and T-002 are sequential because T-002 depends on the failure contract fro
 - Rollback: revert commit; no schema change
 - Notes: Product reads remain public; only currently implemented mutations are administrative.
 
+## S-003 — Order and conversation ownership
+
+### T-005: Enforce conversation ownership in application queries
+
+- AC-IDs: AC-004, AC-005, AC-007
+- Test-IDs: S003-T1, S003-T2
+- Files in scope: `ConversationRepository.java`, `ConversationService.java`, `ConversationResource.java`, matching tests
+- Dependencies: T-003
+- Gates: unit, REST
+- Rollback: revert commit; no schema change
+- Notes: The authenticated user is the only ownership source; client `userId` is removed from the conversation listing contract.
+
+### T-006: Enforce conversation ownership before AI chat memory access
+
+- AC-IDs: AC-005, AC-007, AC-012, AC-013
+- Test-IDs: S003-T3, S003-T4
+- Files in scope: `ChatApplicationService.java`, matching tests
+- Dependencies: T-005
+- Gates: unit
+- Rollback: revert commit; no schema change
+- Notes: A conversation not owned by the authenticated user is treated as not found and must not invoke the AI service.
+
 ## Traceability status
 
 This file intentionally covers the first Epic slice only. AC-004 through AC-015 are mapped to later slices in `03a-epic-roadmap.md` and will receive tasks before their implementation begins.

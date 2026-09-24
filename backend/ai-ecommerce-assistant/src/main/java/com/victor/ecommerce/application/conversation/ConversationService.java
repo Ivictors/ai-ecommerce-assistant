@@ -5,6 +5,7 @@ import com.victor.ecommerce.infrastructure.persistence.conversation.Conversation
 import jakarta.enterprise.context.ApplicationScoped;
 
 import java.util.List;
+import java.util.Optional;
 
 @ApplicationScoped
 public class ConversationService {
@@ -17,6 +18,13 @@ public class ConversationService {
 
     public Conversation findById(Long id) {
         return repository.findById(id);
+    }
+
+    public Optional<Conversation> findByIdForUser(
+            Long conversationId,
+            Long userId) {
+
+        return repository.findByIdAndUserId(conversationId, userId);
     }
 
     public List<Conversation> findByUserId(Long userId) {

@@ -14,6 +14,18 @@
 - Phase: RED
 - Timestamp: 2026-09-23
 
+## S-003 — GREEN
+
+- Test-IDs: S003-T1, S003-T2
+- AC-IDs: AC-004, AC-005, AC-006, AC-007
+- Implementation:
+  - Added owner-scoped conversation lookup.
+  - Changed conversation listing to use the authenticated user instead of a URL `userId`.
+  - Changed chat validation to load the conversation through the authenticated owner.
+- Run result: ownership tests passed.
+- Phase: GREEN
+- Timestamp: 2026-09-23
+
 ## T-003/T-004 — RED
 
 - Test-IDs: S002-T1, S002-T2, S002-T3, S002-T4, S002-T5
