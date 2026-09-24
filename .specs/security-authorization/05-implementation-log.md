@@ -14,6 +14,18 @@
 - Phase: RED
 - Timestamp: 2026-09-23
 
+## S-004 — GREEN
+
+- Test-IDs: S004-T1, S004-T2, S004-T3, S004-T4
+- AC-IDs: AC-012, AC-013, AC-014
+- Implementation:
+  - Added Product Tool delegation and inactive-product tests.
+  - Preserved Order Tool tests for authenticated owner-scoped lookup.
+  - Confirmed Tools depend on application services rather than repositories or databases.
+- Run result: Tool authorization tests passed.
+- Phase: GREEN
+- Timestamp: 2026-09-24
+
 ## S-003 — GREEN
 
 - Test-IDs: S003-T1, S003-T2

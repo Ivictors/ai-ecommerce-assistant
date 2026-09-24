@@ -73,6 +73,28 @@ T-001 and T-002 are sequential because T-002 depends on the failure contract fro
 - Rollback: revert commit; no schema change
 - Notes: A conversation not owned by the authenticated user is treated as not found and must not invoke the AI service.
 
+## S-004 — Tool and AI flow authorization
+
+### T-007: Verify product Tool delegation and authoritative data
+
+- AC-IDs: AC-012, AC-013, AC-014
+- Test-IDs: S004-T1, S004-T2
+- Files in scope: `ProductTool.java`, `ProductToolTest.java`
+- Dependencies: T-004
+- Gates: unit
+- Rollback: revert commit; no schema change
+- Notes: The Tool must use `ProductService`; inactive products must not be exposed.
+
+### T-008: Verify order Tool ownership delegation
+
+- AC-IDs: AC-012, AC-013, AC-014
+- Test-IDs: S004-T3, S004-T4
+- Files in scope: `OrderTool.java`, `OrderToolTest.java`
+- Dependencies: T-006
+- Gates: unit
+- Rollback: revert commit; no schema change
+- Notes: The Tool must derive the user from `CurrentUserService` and use `OrderService.findByIdForUser`.
+
 ## Traceability status
 
 This file intentionally covers the first Epic slice only. AC-004 through AC-015 are mapped to later slices in `03a-epic-roadmap.md` and will receive tasks before their implementation begins.
