@@ -26,6 +26,19 @@
 - Phase: GREEN
 - Timestamp: 2026-09-24
 
+## S-005 — GREEN
+
+- Test-IDs: S005-T1, S005-T2, S005-T3, S005-T4, S005-T5, S005-T6
+- AC-IDs: AC-002, AC-003, AC-005, AC-009, AC-015
+- Implementation:
+  - Added the `{code, message}` API error response.
+  - Added mappings for 400, 401, 403, 404, and 500.
+  - Added safe handling for private-resource and unexpected exceptions.
+  - Added tests ensuring token and internal exception details are not exposed.
+- Run result: full test suite passed.
+- Phase: GREEN
+- Timestamp: 2026-09-24
+
 ## S-003 — GREEN
 
 - Test-IDs: S003-T1, S003-T2

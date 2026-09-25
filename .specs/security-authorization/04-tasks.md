@@ -95,6 +95,18 @@ T-001 and T-002 are sequential because T-002 depends on the failure contract fro
 - Rollback: revert commit; no schema change
 - Notes: The Tool must derive the user from `CurrentUserService` and use `OrderService.findByIdForUser`.
 
+## S-005 — Integrated validation and security observability
+
+### T-009: Implement the standardized API error contract
+
+- AC-IDs: AC-002, AC-003, AC-005, AC-009, AC-015
+- Test-IDs: S005-T1 through S005-T6
+- Files in scope: `presentation/rest/error/*`, matching mapper tests
+- Dependencies: T-005, T-006, issue #5 contract approval
+- Gates: unit, REST
+- Rollback: revert commit; no schema change
+- Notes: Errors use `{code, message}`. Responses must not expose tokens, stack traces, ownership details, or infrastructure secrets.
+
 ## Traceability status
 
 This file intentionally covers the first Epic slice only. AC-004 through AC-015 are mapped to later slices in `03a-epic-roadmap.md` and will receive tasks before their implementation begins.
