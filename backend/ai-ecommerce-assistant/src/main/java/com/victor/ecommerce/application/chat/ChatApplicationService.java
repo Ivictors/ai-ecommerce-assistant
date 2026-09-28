@@ -5,6 +5,7 @@ import com.victor.ecommerce.infrastructure.ai.EcommerceAssistant;
 import com.victor.ecommerce.application.conversation.ConversationService;
 import com.victor.ecommerce.application.security.CurrentUserService;
 import jakarta.enterprise.context.ApplicationScoped;
+import jakarta.inject.Inject;
 import com.victor.ecommerce.application.knowledge.KnowledgeRetriever;
 
 @ApplicationScoped
@@ -15,6 +16,7 @@ public class ChatApplicationService {
     private final CurrentUserService currentUserService;
     private final KnowledgeRetriever knowledgeRetriever;
 
+    @Inject
     public ChatApplicationService(
             EcommerceAssistant assistant,
             ConversationService conversationService,

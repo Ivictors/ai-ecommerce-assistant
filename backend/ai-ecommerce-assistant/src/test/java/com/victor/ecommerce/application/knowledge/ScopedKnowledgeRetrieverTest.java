@@ -22,8 +22,9 @@ class ScopedKnowledgeRetrieverTest {
         version.markReady();
         document.setCurrentVersionId(version.getId());
         var chunk = new KnowledgeChunk(version, 0, "return policy", "[0]");
-        when(repository.listAll()).thenReturn(List.of(chunk));
+        when(repository.searchSimilar(anyString(), eq(true), eq(false)))
+                .thenReturn(List.<Object[]>of(new Object[]{1L, 0, "return policy", 1L}));
 
-        assertEquals(1, new ScopedKnowledgeRetriever(repository, identity).retrieve("return policy").size());
+        assertEquals(1, new ScopedKnowledgeRetriever(repository, identity, text -> "[0]").retrieve("return policy").size());
     }
 }
