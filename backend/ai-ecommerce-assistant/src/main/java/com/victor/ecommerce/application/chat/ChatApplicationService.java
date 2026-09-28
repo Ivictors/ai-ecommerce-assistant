@@ -45,7 +45,7 @@ public class ChatApplicationService {
 
         var knowledge = knowledgeRetriever.retrieve(message);
         String groundedMessage = knowledge.isEmpty()
-                ? message
+                ? "No approved knowledge context was found. Do not invent or assert company policy. If this is a policy question, explain that the available knowledge is insufficient.\n\nUser question:\n" + message
                 : "Approved knowledge context:\n" + knowledge.stream().map(item -> item.content()).reduce((a, b) -> a + "\n" + b).orElse("") + "\n\nUser question:\n" + message;
 
         return assistant.chat(

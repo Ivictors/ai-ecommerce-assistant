@@ -30,3 +30,13 @@
 - Tests: `ScopedKnowledgeRetrieverTest` and the full Maven suite.
 - Result: full Maven test suite passed with 0 failures and 0 errors.
 - Timestamp: 2026-09-28
+
+## T-007 — GREEN
+
+- Scope: integrate retrieved context with chat while preserving transactional
+  Tools and safe no-context behavior.
+- AC-IDs: AC-003, AC-004, AC-006.
+- Tests: `ChatApplicationServiceTest` context propagation scenario and full
+  Maven suite.
+- Result: full Maven test suite passed with 0 failures and 0 errors.
+- Timestamp: 2026-09-28

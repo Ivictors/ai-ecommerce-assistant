@@ -8,7 +8,7 @@
     "T-004": { "phase": "done", "started_at": "2026-09-28T00:00:00-03:00", "completed_at": "2026-09-28T00:00:00-03:00" },
     "T-005": { "phase": "done", "started_at": "2026-09-28T00:00:00-03:00", "completed_at": "2026-09-28T00:00:00-03:00" },
     "T-006": { "phase": "done", "started_at": "2026-09-28T00:00:00-03:00", "completed_at": "2026-09-28T00:00:00-03:00" },
-    "T-007": { "phase": "pending", "started_at": null, "completed_at": null },
+    "T-007": { "phase": "done", "started_at": "2026-09-28T00:00:00-03:00", "completed_at": "2026-09-28T00:00:00-03:00" },
     "T-008": { "phase": "pending", "started_at": null, "completed_at": null }
   },
   "created_at": "2026-09-28T00:00:00-03:00",
