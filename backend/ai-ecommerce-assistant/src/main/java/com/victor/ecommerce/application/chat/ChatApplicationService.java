@@ -5,6 +5,7 @@ import com.victor.ecommerce.infrastructure.ai.EcommerceAssistant;
 import com.victor.ecommerce.application.conversation.ConversationService;
 import com.victor.ecommerce.application.security.CurrentUserService;
 import jakarta.enterprise.context.ApplicationScoped;
+import com.victor.ecommerce.application.knowledge.KnowledgeRetriever;
 
 @ApplicationScoped
 public class ChatApplicationService {
@@ -12,14 +13,22 @@ public class ChatApplicationService {
     private final EcommerceAssistant assistant;
     private final ConversationService conversationService;
     private final CurrentUserService currentUserService;
+    private final KnowledgeRetriever knowledgeRetriever;
 
     public ChatApplicationService(
             EcommerceAssistant assistant,
             ConversationService conversationService,
-            CurrentUserService currentUserService) {
+            CurrentUserService currentUserService,
+            KnowledgeRetriever knowledgeRetriever) {
         this.assistant = assistant;
         this.conversationService = conversationService;
         this.currentUserService = currentUserService;
+        this.knowledgeRetriever = knowledgeRetriever;
+    }
+
+    public ChatApplicationService(EcommerceAssistant assistant, ConversationService conversationService,
+                                  CurrentUserService currentUserService) {
+        this(assistant, conversationService, currentUserService, message -> java.util.List.of());
     }
 
     public String chat(Long conversationId, String message) {
@@ -34,9 +43,14 @@ public class ChatApplicationService {
             throw new ConversationNotFoundException(conversationId);
         }
 
+        var knowledge = knowledgeRetriever.retrieve(message);
+        String groundedMessage = knowledge.isEmpty()
+                ? message
+                : "Approved knowledge context:\n" + knowledge.stream().map(item -> item.content()).reduce((a, b) -> a + "\n" + b).orElse("") + "\n\nUser question:\n" + message;
+
         return assistant.chat(
                 conversation.getId().toString(),
-                message
+                groundedMessage
         );
     }
 }

@@ -22,3 +22,11 @@
 - Notes: The embedding adapter is isolated behind `EmbeddingPort`; production
   provider hardening remains part of the later evolution work.
 - Timestamp: 2026-09-28
+
+## T-006 — GREEN
+
+- Scope: state, active-version, and explicit-scope filtering for retrieval.
+- AC-IDs: AC-003, AC-005, AC-008.
+- Tests: `ScopedKnowledgeRetrieverTest` and the full Maven suite.
+- Result: full Maven test suite passed with 0 failures and 0 errors.
+- Timestamp: 2026-09-28
