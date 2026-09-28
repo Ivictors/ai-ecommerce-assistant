@@ -10,3 +10,15 @@
 - Result: 31 tests passed, 0 failures, 0 errors.
 - Notes: Processing and retrieval remain pending for T-004 through T-007.
 - Timestamp: 2026-09-28
+
+## T-004/T-005 — GREEN
+
+- Scope: PDF/text extraction, deterministic chunking, embedding port, and
+  synchronous processing lifecycle.
+- AC-IDs: AC-002, AC-007.
+- Tests: `DocumentProcessingServiceTest` and
+  `BasicDocumentTextExtractorTest`.
+- Result: full Maven test suite passed with 0 failures and 0 errors.
+- Notes: The embedding adapter is isolated behind `EmbeddingPort`; production
+  provider hardening remains part of the later evolution work.
+- Timestamp: 2026-09-28

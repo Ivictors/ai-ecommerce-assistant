@@ -1,6 +1,7 @@
 package com.victor.ecommerce.presentation.rest.knowledge;
 
 import com.victor.ecommerce.application.knowledge.KnowledgeDocumentService;
+import com.victor.ecommerce.application.knowledge.DocumentProcessingService;
 import com.victor.ecommerce.domain.knowledge.KnowledgeScope;
 import jakarta.annotation.security.RolesAllowed;
 import jakarta.ws.rs.*;
@@ -14,9 +15,17 @@ import org.jboss.resteasy.reactive.multipart.FileUpload;
 @RolesAllowed("ADMIN")
 public class KnowledgeDocumentResource {
     private final KnowledgeDocumentService service;
+    private final DocumentProcessingService processing;
 
-    public KnowledgeDocumentResource(KnowledgeDocumentService service) {
+    public KnowledgeDocumentResource(KnowledgeDocumentService service, DocumentProcessingService processing) {
         this.service = service;
+        this.processing = processing;
+    }
+
+    @POST
+    @Path("/{id}/process")
+    public KnowledgeDocumentResponse process(@PathParam("id") Long id) {
+        return KnowledgeDocumentResponse.from(processing.process(id));
     }
 
     @POST
