@@ -19,19 +19,23 @@ public class KnowledgeChunkRepository implements PanacheRepository<KnowledgeChun
     }
 
     public List<Object[]> searchSimilar(String vector, boolean authenticated, boolean admin) {
-        String scopeClause = admin ? "v.scope IN ('PUBLIC', 'AUTHENTICATED_USER', 'ADMIN')"
-                : authenticated ? "v.scope IN ('PUBLIC', 'AUTHENTICATED_USER')" : "v.scope = 'PUBLIC'";
         return entityManager.createNativeQuery("""
                 SELECT c.document_version_id, c.chunk_index, c.content, v.document_id
                 FROM knowledge_chunks c
                 JOIN knowledge_document_versions v ON v.id = c.document_version_id
                 JOIN knowledge_documents d ON d.id = v.document_id
                 WHERE v.state = 'READY' AND d.current_version_id = v.id
-                  AND %s
-                ORDER BY c.embedding <=> CAST(?1 AS vector)
+                  AND (
+                    :admin = true
+                    OR v.scope = 'PUBLIC'
+                    OR (:authenticated = true AND v.scope = 'AUTHENTICATED_USER')
+                  )
+                ORDER BY c.embedding <=> CAST(:vector AS vector)
                 LIMIT 5
-                """.formatted(scopeClause))
-                .setParameter(1, vector)
+                """)
+                .setParameter("vector", vector)
+                .setParameter("admin", admin)
+                .setParameter("authenticated", authenticated)
                 .getResultList();
     }
 }

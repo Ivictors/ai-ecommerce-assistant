@@ -26,6 +26,7 @@ public class KnowledgeDocumentService {
         }
         KnowledgeDocument document = new KnowledgeDocument();
         documents.persist(document);
+        // TODO: replace the fixed initial version with transactional next-version calculation when document replacement is implemented.
         KnowledgeDocumentVersion version = new KnowledgeDocumentVersion(document, 1, filename, mediaType, scope, content);
         versions.persist(version);
         document.setCurrentVersionId(version.getId());
