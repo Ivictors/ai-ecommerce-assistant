@@ -3,7 +3,7 @@
   "active_task": null,
   "tasks": {
     "T-001": { "phase": "pending", "started_at": null, "completed_at": null },
-    "T-002": { "phase": "pending", "started_at": null, "completed_at": null },
+    "T-002": { "phase": "done", "started_at": "2026-09-29T00:00:00-03:00", "completed_at": "2026-09-29T00:00:00-03:00" },
     "T-003": { "phase": "pending", "started_at": null, "completed_at": null },
     "T-004": { "phase": "pending", "started_at": null, "completed_at": null }
   },
