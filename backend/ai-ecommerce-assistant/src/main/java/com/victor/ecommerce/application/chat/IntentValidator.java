@@ -9,7 +9,7 @@ import java.util.Locale;
 public class IntentValidator {
     public ValidatedUserIntent validate(UserIntent intent) {
         if (intent == null || intent.intent() == null || intent.intent().isBlank()) {
-            return new ValidatedUserIntent(IntentType.UNKNOWN, null);
+            return new ValidatedUserIntent(IntentType.UNKNOWN, null, null);
         }
 
         IntentType type;
@@ -21,9 +21,13 @@ public class IntentValidator {
 
         if (type == IntentType.PRODUCT_INFORMATION
                 && (intent.productName() == null || intent.productName().isBlank())) {
-            return new ValidatedUserIntent(IntentType.UNKNOWN, null);
+            return new ValidatedUserIntent(IntentType.UNKNOWN, null, null);
         }
 
-        return new ValidatedUserIntent(type, intent.productName());
+        if (type == IntentType.ORDER_STATUS && intent.orderId() == null) {
+            return new ValidatedUserIntent(IntentType.UNKNOWN, null, null);
+        }
+
+        return new ValidatedUserIntent(type, intent.productName(), intent.orderId());
     }
 }

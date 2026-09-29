@@ -58,6 +58,9 @@ public interface EcommerceAssistant {
             - POLICY_INFORMATION
             - UNKNOWN
 
+            For PRODUCT_INFORMATION, return productName when available.
+            For ORDER_STATUS, return orderId when available.
+
             Return the appropriate structured result.
 
             User message:

@@ -11,7 +11,7 @@ import jakarta.ws.rs.QueryParam;
 import jakarta.ws.rs.core.MediaType;
 
 @Path("/api/chat")
-@Produces(MediaType.TEXT_PLAIN)
+@Produces(MediaType.APPLICATION_JSON)
 @Consumes(MediaType.TEXT_PLAIN)
 @RolesAllowed("USER")
 public class ChatResource {
@@ -23,7 +23,7 @@ public class ChatResource {
     }
 
     @POST
-    public String chat(
+    public ChatResponse chat(
             @QueryParam("conversationId") Long conversationId,
             String message) {
 
