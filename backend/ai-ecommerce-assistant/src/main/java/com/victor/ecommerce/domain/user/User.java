@@ -2,6 +2,8 @@ package com.victor.ecommerce.domain.user;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
@@ -23,6 +25,13 @@ public class User {
     @Column(nullable = false, unique = true)
     private String email;
 
+    @Column(name = "password_hash")
+    private String passwordHash;
+
+    @Enumerated(EnumType.STRING)
+    @Column(nullable = false)
+    private UserRole role;
+
     @Column(name = "created_at", nullable = false)
     private Instant createdAt;
 
@@ -33,6 +42,7 @@ public class User {
         this.name = name;
         this.email = email;
         this.createdAt = Instant.now();
+        this.role = UserRole.USER;
     }
 
     public Long getId() {
@@ -49,5 +59,17 @@ public class User {
 
     public Instant getCreatedAt() {
         return createdAt;
+    }
+
+    public String getPasswordHash() {
+        return passwordHash;
+    }
+
+    public UserRole getRole() {
+        return role;
+    }
+
+    public boolean hasCredential() {
+        return passwordHash != null && !passwordHash.isBlank();
     }
 }
