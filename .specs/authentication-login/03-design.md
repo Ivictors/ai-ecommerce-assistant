@@ -82,7 +82,8 @@ issue #44 is implemented. Authentication rejects users with a null hash.
 Argon2id parameters are runtime-configurable. The approved initial defaults
 are 64 MiB memory, 3 iterations, parallelism 1, and a 32-byte hash output.
 The access-token lifetime is runtime-configurable with an approved initial
-default of 15 minutes.
+default of 15 minutes (`PT15M`). The RSA private-key location is also
+runtime-configurable and defaults to the local ignored `privateKey.pem` path.
 
 Existing migrations must not be modified.
 
