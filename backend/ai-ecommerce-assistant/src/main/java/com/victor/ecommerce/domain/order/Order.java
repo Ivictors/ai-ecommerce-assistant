@@ -29,7 +29,7 @@ public class Order {
     private User user;
 
     @Enumerated(EnumType.STRING)
-    @Column(nullable = false)
+    @Column(nullable = false, length = 30)
     private OrderStatus status;
 
     @Column(nullable = false, precision = 19, scale = 2)

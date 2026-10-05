@@ -22,22 +22,22 @@ public class KnowledgeDocumentVersion {
     @Column(nullable = false)
     private String filename;
 
-    @Column(name = "media_type", nullable = false)
+    @Column(name = "media_type", nullable = false, length = 150)
     private String mediaType;
 
     @Enumerated(EnumType.STRING)
-    @Column(nullable = false)
+    @Column(nullable = false, length = 30)
     private KnowledgeScope scope;
 
     @Enumerated(EnumType.STRING)
-    @Column(nullable = false)
+    @Column(nullable = false, length = 30)
     private KnowledgeDocumentState state;
 
     @Lob
     @Column(name = "source_content", nullable = false, columnDefinition = "BYTEA")
     private byte[] sourceContent;
 
-    @Column(name = "failure_reason")
+    @Column(name = "failure_reason", columnDefinition = "TEXT")
     private String failureReason;
 
     @Column(name = "created_at", nullable = false)

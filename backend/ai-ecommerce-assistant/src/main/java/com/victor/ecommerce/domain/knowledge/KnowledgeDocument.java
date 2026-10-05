@@ -15,7 +15,7 @@ public class KnowledgeDocument {
     @Column(name = "current_version_id")
     private Long currentVersionId;
 
-    @Column(nullable = false)
+    @Column(name = "created_at", nullable = false)
     private Instant createdAt;
 
     public KnowledgeDocument() {
