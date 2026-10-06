@@ -2,13 +2,13 @@
   "feature_id": "BACKEND-AUTHENTICATION-LOGIN",
   "active_task": null,
   "tasks": {
-    "T-001": { "phase": "pending", "started_at": null, "completed_at": null },
-    "T-002": { "phase": "pending", "started_at": null, "completed_at": null },
-    "T-003": { "phase": "pending", "started_at": null, "completed_at": null },
-    "T-004": { "phase": "pending", "started_at": null, "completed_at": null },
-    "T-005": { "phase": "pending", "started_at": null, "completed_at": null },
-    "T-006": { "phase": "pending", "started_at": null, "completed_at": null }
+    "T-001": { "phase": "completed", "started_at": null, "completed_at": null },
+    "T-002": { "phase": "completed", "started_at": null, "completed_at": null },
+    "T-003": { "phase": "completed", "started_at": null, "completed_at": null },
+    "T-004": { "phase": "completed", "started_at": null, "completed_at": null },
+    "T-005": { "phase": "completed", "started_at": null, "completed_at": null },
+    "T-006": { "phase": "completed", "started_at": null, "completed_at": "2026-10-05T22:14:27-03:00" }
   },
   "created_at": "2026-09-30T00:00:00-03:00",
-  "updated_at": "2026-09-30T00:00:00-03:00"
+  "updated_at": "2026-10-05T22:14:27-03:00"
 }

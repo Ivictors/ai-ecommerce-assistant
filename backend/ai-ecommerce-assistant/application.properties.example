@@ -1,19 +1,21 @@
 quarkus.datasource.db-kind=${DB_KIND:postgresql}
-quarkus.datasource.username=${DB_USERNAME:value}
-quarkus.datasource.password=${DB_PASSWORD:value}
-quarkus.datasource.jdbc.url=${DB_URL:jdbc:postgresql://localhost:5432/value}
+quarkus.datasource.username=${POSTGRES_USER:ecommerce}
+quarkus.datasource.password=${POSTGRES_PASSWORD:ecommerce}
+quarkus.datasource.jdbc.url=${DB_URL:jdbc:postgresql://localhost:5432/ecommerce}
 quarkus.flyway.migrate-at-start=true
+quarkus.hibernate-orm.schema-management.strategy=validate
 
-quarkus.langchain4j.openai.api-key=${OPENAI_API_KEY:your key}
+quarkus.langchain4j.openai.api-key=${OPENAI_API_KEY}
 quarkus.langchain4j.openai.chat-model.model-name=gpt-4o-mini
 quarkus.langchain4j.openai.chat-model.temperature=0.2
+quarkus.langchain4j.openai.embedding-model.model-name=text-embedding-3-small
+quarkus.langchain4j.chat-memory.type=MESSAGE_WINDOW
+quarkus.langchain4j.chat-memory.memory-window.max-messages=10
 
-quarkus.langchain4j.chat-memory.type=message-window
-quarkus.langchain4j.chat-memory.max-messages=10
-
-mp.jwt.verify.publickey.location=
-mp.jwt.verify.issuer=
+mp.jwt.verify.publickey.location=${JWT_PUBLIC_KEY_LOCATION:publicKey.pem}
+mp.jwt.verify.issuer=${JWT_ISSUER:ecommerce}
 quarkus.smallrye-jwt.enabled=true
+smallrye.jwt.path.groups=role
 smallrye.jwt.sign.key.location=${JWT_PRIVATE_KEY_LOCATION:privateKey.pem}
 security.jwt.access-token-lifetime=${JWT_ACCESS_TOKEN_LIFETIME:PT15M}
 

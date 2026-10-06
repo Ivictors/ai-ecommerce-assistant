@@ -48,6 +48,11 @@
 - Dependencies: T-005
 - Gates: full verification, security review
 
+The integration tests must exercise an issued `USER` token against an
+administrator-only endpoint and confirm denial, then exercise an issued
+`ADMIN` token and confirm success. This validates both the persisted role
+claim and Quarkus's claim-to-role mapping, not merely token contents.
+
 ## Deferred Work
 
 - Issue #42: refresh-token lifecycle.
