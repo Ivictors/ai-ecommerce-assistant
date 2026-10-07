@@ -1,8 +1,12 @@
 package com.victor.ecommerce.application.conversation;
 
 import com.victor.ecommerce.domain.conversation.Conversation;
+import com.victor.ecommerce.domain.user.User;
+import com.victor.ecommerce.application.security.UnauthenticatedUserException;
 import com.victor.ecommerce.infrastructure.persistence.conversation.ConversationRepository;
+import com.victor.ecommerce.infrastructure.persistence.user.UserRepository;
 import jakarta.enterprise.context.ApplicationScoped;
+import jakarta.transaction.Transactional;
 
 import java.util.List;
 import java.util.Optional;
@@ -11,9 +15,22 @@ import java.util.Optional;
 public class ConversationService {
 
     private final ConversationRepository repository;
+    private final UserRepository userRepository;
 
-    public ConversationService(ConversationRepository repository) {
+    public ConversationService(
+            ConversationRepository repository,
+            UserRepository userRepository) {
         this.repository = repository;
+        this.userRepository = userRepository;
+    }
+
+    @Transactional
+    public Conversation createForUser(Long userId) {
+        User user = userRepository.findByIdOptional(userId)
+                .orElseThrow(UnauthenticatedUserException::new);
+        Conversation conversation = new Conversation(user);
+        repository.persist(conversation);
+        return conversation;
     }
 
     public Conversation findById(Long id) {

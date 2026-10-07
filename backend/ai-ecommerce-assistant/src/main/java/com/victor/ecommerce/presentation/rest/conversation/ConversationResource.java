@@ -6,6 +6,7 @@ import com.victor.ecommerce.domain.conversation.Conversation;
 import jakarta.annotation.security.RolesAllowed;
 import jakarta.ws.rs.*;
 import jakarta.ws.rs.core.MediaType;
+import jakarta.ws.rs.core.Response;
 
 import java.util.List;
 
@@ -31,5 +32,13 @@ public class ConversationResource {
                 .stream()
                 .map(ConversationResponse::from)
                 .toList();
+    }
+
+    @POST
+    public Response create() {
+        Conversation conversation = conversationService.createForUser(currentUserService.getUserId());
+        return Response.status(Response.Status.CREATED)
+                .entity(ConversationResponse.from(conversation))
+                .build();
     }
 }

@@ -28,6 +28,28 @@ import static org.mockito.Mockito.mock;
 class ChatApplicationServiceTest {
 
     @Test
+    void test_AC006_T001T8_creatorCanUseTheOwnedConversationForChat() {
+        EcommerceAssistant assistant = mock(EcommerceAssistant.class);
+        ConversationService conversations = mock(ConversationService.class);
+        CurrentUserService currentUser = mock(CurrentUserService.class);
+        KnowledgeRetriever retriever = mock(KnowledgeRetriever.class);
+        Conversation conversation = mock(Conversation.class);
+        when(currentUser.getUserId()).thenReturn(7L);
+        when(conversation.getId()).thenReturn(25L);
+        when(conversations.findByIdForUser(25L, 7L)).thenReturn(Optional.of(conversation));
+        when(assistant.classify("Hello")).thenReturn(new UserIntent("UNKNOWN", null));
+        when(retriever.retrieve("Hello")).thenReturn(List.of());
+        when(assistant.chat(eq("25"), any())).thenReturn("Hello");
+
+        ChatApplicationService service = new ChatApplicationService(assistant, conversations, currentUser, retriever);
+
+        service.chat(25L, "Hello");
+
+        verify(conversations).findByIdForUser(25L, 7L);
+        verify(assistant).chat(eq("25"), any());
+    }
+
+    @Test
     void rejectsConversationNotOwnedByAuthenticatedUser() {
         EcommerceAssistant assistant = mock(EcommerceAssistant.class);
         ConversationService conversations = mock(ConversationService.class);

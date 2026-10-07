@@ -1,6 +1,7 @@
 package com.victor.ecommerce.presentation.rest.error;
 
 import com.victor.ecommerce.application.chat.ConversationNotFoundException;
+import com.victor.ecommerce.application.security.UnauthenticatedUserException;
 import jakarta.ws.rs.BadRequestException;
 import jakarta.ws.rs.ForbiddenException;
 import jakarta.ws.rs.NotAuthorizedException;
@@ -27,6 +28,14 @@ class ApiExceptionMappersTest {
 
         assertError(response, 401, "UNAUTHENTICATED", "Authentication is required");
         assertFalse(response.getEntity().toString().contains("secret-token"));
+    }
+
+    @Test
+    void mapsMissingPersistedIdentityAsUnauthenticated() {
+        var response = new UnauthenticatedUserExceptionMapper()
+                .toResponse(new UnauthenticatedUserException());
+
+        assertError(response, 401, "UNAUTHENTICATED", "Authentication is required");
     }
 
     @Test
