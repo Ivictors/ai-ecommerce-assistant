@@ -199,10 +199,11 @@ class ConversationCreationIntegrationTest {
     private void insertUser(String email, String role) throws Exception {
         try (var connection = dataSource.getConnection();
              var statement = connection.prepareStatement(
-                     "INSERT INTO users (name, email, role) VALUES (?, ?, ?)")) {
+                     "INSERT INTO users (name, email, password_hash, role) VALUES (?, ?, ?, ?)")) {
             statement.setString(1, "Conversation Integration Test");
             statement.setString(2, email);
-            statement.setString(3, role);
+            statement.setString(3, "test-only-password-hash");
+            statement.setString(4, role);
             statement.executeUpdate();
         }
     }

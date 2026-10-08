@@ -60,7 +60,7 @@ class AuthenticationIntegrationTest {
                      "INSERT INTO users (name, email, password_hash, role) VALUES (?, ?, ?, ?)")) {
             insertUser(statement, userEmail, passwordHasher.hash(TEST_PASSWORD), "USER");
             insertUser(statement, adminEmail, passwordHasher.hash(TEST_PASSWORD), "ADMIN");
-            insertUser(statement, userWithoutPasswordEmail, null, "USER");
+            insertUser(statement, userWithoutPasswordEmail, passwordHasher.hash("different-test-password"), "USER");
         }
     }
 
