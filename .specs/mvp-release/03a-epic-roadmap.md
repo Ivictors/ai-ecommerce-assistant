@@ -90,19 +90,30 @@
   deploy plan. Do not deploy as part of this slice.
 - Dependencies: MVP runtime shape and #13 operational signals.
 
+### Final MVP compatibility gate — Quarkus LTS baseline
+
+- Issue: #48 — open.
+- Scope: upgrade Quarkus to the then-current supported LTS, verify the selected
+  JDK distribution's support/update policy, align platform-managed extensions,
+  and run full validation. Re-check current versions when implementing.
+- Dependencies: MVP feature work, #13, and #14.
+- Position: last technical compatibility task in MVP; complete before final
+  hardening/review in #15. No production deployment is authorized.
+
 ### S-012 — Final hardening and technical handoff
 
 - Issue: #15 — open.
 - Scope: full clean verification, security review, traceability, documentation,
   limitations and go/no-go classification.
-- Dependencies: completed MVP, #13 and #14.
+- Dependencies: completed MVP, #13, #14 and #48.
 
 ## MVP Milestones
 
 - **M1 — Backend prerequisites:** S-001, S-002, S-003.
 - **M2 — Customer experience:** S-004 through S-008.
 - **M3 — Validated usable MVP:** S-009; close #12 only here.
-- **M4 — Operable and reviewed delivery:** S-010 through S-012.
+- **M4 — Operable and reviewed delivery:** S-010, S-011, final compatibility
+  gate #48, then S-012.
 
 ## Acceptance Traceability
 
@@ -128,7 +139,7 @@
                    +---------------> #39      \
                   #38/#39/#40/#44/#47 --> #41 --> #12 close
 
-MVP validated (#41) --> #13 --> #14 --> #15
+MVP validated (#41) --> #13 --> #14 --> #48 --> #15
 ```
 
 ## Deferred Beyond MVP
