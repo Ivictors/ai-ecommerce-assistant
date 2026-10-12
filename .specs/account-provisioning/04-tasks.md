@@ -57,11 +57,11 @@ before production implementation. This planning update changes no task state.
 
 - AC-IDs: AC-001, AC-002, AC-005, AC-010, AC-011
 - Test-IDs:
-  - T-003-T1 — advisory transaction lock serializes bootstrap attempts
-  - T-003-T2 — success audit commits with account creation
+  - T-003-T1 — concurrent bootstrap attempts are serialized and the lock is released after rollback
+  - T-003-T2 — success audit commits with accounts and audit failure rolls back both
   - T-003-T3 — failure audit persists after account transaction rollback
-  - T-003-T4 — audit failure falls back to a safe structured log
-  - T-003-T5 — audit rows contain no names, emails, passwords, or hashes
+  - T-003-T4 — audit failure falls back to a safe structured log without exception details
+  - T-003-T5 — audit rows contain only approved columns and no secrets
   - T-003-T6 — database uniqueness conflicts produce safe DUPLICATE_EMAIL without partial accounts
 - Files in scope:
   - `src/main/java/com/victor/ecommerce/application/account/AccountBootstrapService.java` (register as CDI bean after adapters exist)

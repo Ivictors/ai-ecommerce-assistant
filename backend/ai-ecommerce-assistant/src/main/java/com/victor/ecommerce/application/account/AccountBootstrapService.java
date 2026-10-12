@@ -3,11 +3,15 @@ package com.victor.ecommerce.application.account;
 import com.victor.ecommerce.application.security.PasswordHasher;
 import com.victor.ecommerce.domain.user.User;
 import com.victor.ecommerce.domain.user.UserRole;
+import jakarta.enterprise.context.ApplicationScoped;
+import io.quarkus.arc.Unremovable;
 
 import java.util.Optional;
 import java.util.OptionalLong;
 import java.util.regex.Pattern;
 
+@ApplicationScoped
+@Unremovable
 public class AccountBootstrapService {
 
     private static final Pattern EMAIL_PATTERN = Pattern.compile("^[^\\s@]+@[^\\s@]+\\.[^\\s@]+$");
