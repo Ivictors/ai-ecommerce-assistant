@@ -199,3 +199,14 @@
 - Phase: REFACTOR / SIMPLIFY — complete.
 - Validation: final `mvnw.cmd clean verify` — 102 passed, 0 failed, 0 errors; build success. The three isolated schemas created by this final verification were explicitly removed before commit.
 - Timestamp: 2026-10-12T14:30:53-03:00
+
+## T-005 — GREEN
+
+- Test-IDs: T-005-T1, T-005-T2, T-005-T3, T-005-T4, T-005-T5
+- Added `AccountBootstrapIntegrationTest` using the real CDI bootstrap service and command, PostgreSQL persistence, `POST /api/auth/login`, and JWT payload assertions.
+- Targeted run: `mvnw.cmd "-Dtest=AccountBootstrapIntegrationTest" test` — 2 passed, 0 failed, 0 errors.
+- Covered behaviors: clean ADMIN+USER bootstrap, persisted roles, both login flows, JWT role claims, safe command output, and second-bootstrap refusal without account growth. T-003 already covers concurrent invocations, transaction rollback, audit durability, and migration behavior.
+- Phase: GREEN — complete pending full validation.
+- Timestamp: 2026-10-12T14:34:52-03:00
+
+Final validation: `mvnw.cmd clean verify` — 104 passed, 0 failed, 0 errors; build success.
