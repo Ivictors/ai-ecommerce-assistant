@@ -118,8 +118,8 @@ approved this behavior on 2026-10-07.
   passwordless fixtures are removed. V3 and V6 remain immutable.
 - Existing tests that insert users without `password_hash` must be updated to
   provide a test hash before the constraint is applied.
-- If an audit table is approved, its model and migration are added to this
-  design before low-level task decomposition; no audit schema is assumed yet.
+- The approved audit table is defined in the low-level design and V9. Success
+  audit commits with accounts; failure audit uses an independent transaction.
 
 ## Security Posture
 
@@ -174,7 +174,7 @@ approved this behavior on 2026-10-07.
   model not needed for these disposable fixtures.
 - **Atomic bootstrap vs partial success:** all-or-nothing creation makes a
   requested ADMIN+test USER setup retryable and prevents a half-complete
-  bootstrap. This is proposed in ADR-003 and requires approval.
+  bootstrap. This is approved in ADR-003 and resolved question Q-007.
 - **Durable audit table vs structured logs:** a table provides queryable,
   database-backed audit history; structured logs require less schema but
   depend on log retention and can be unavailable when database connectivity
@@ -202,7 +202,7 @@ ADRs:
   external request occurs in command integration tests.
 - **Argon2id parameters increase command duration and memory use.** Reuse the
   existing configured hasher and do not duplicate parameters.
-- **A failed optional USER creation could leave only an ADMIN.** Proposed
+- **A failed optional USER creation could leave only an ADMIN.** The approved
   mitigation is a single transaction (ADR-003).
 - **The existing ORM model permits a null hash.** Update the domain/entity
   constructor and all test fixtures before enabling schema validation against

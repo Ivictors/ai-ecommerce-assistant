@@ -23,6 +23,127 @@ Safe failure reason codes: `NO_INTERACTIVE_CONSOLE`, `INVALID_INPUT`,
 `DATABASE_FAILURE`, and `AUDIT_FAILURE`. The process output may include a
 correlation/attempt identifier, but no raw password, hash, or secret.
 
+### T-002 application contract
+
+The use case is exposed by `com.victor.ecommerce.application.account.AccountBootstrapService`:
+
+```java
+BootstrapResult bootstrap(BootstrapRequest request)
+```
+
+The immutable input/output records are nested in `AccountBootstrapService`:
+
+```java
+record AccountDetails(String name, String email, String password)
+record BootstrapRequest(AccountDetails admin, Optional<AccountDetails> testUser)
+record BootstrapResult(long adminUserId, OptionalLong testUserId)
+```
+
+`AccountDetails.toString()` must redact its password instead of using the
+record-generated representation.
+
+The request always includes ADMIN details. `testUser` is empty unless the
+operator explicitly requested a test account. Role is not caller-controlled:
+the service assigns `ADMIN` to the first account and `USER` to the optional
+account. Passwords are transient inputs and must never appear in `toString`,
+logs, exception messages, audit records, or results.
+
+The use case coordinates these application ports:
+
+```java
+interface AccountBootstrapTransaction {
+    <T> T execute(Supplier<T> work);
+}
+
+interface UserAccountRepository {
+    boolean administratorExists();
+    boolean emailExists(String email);
+    long persist(User user);
+}
+
+interface AccountProvisioningAudit {
+    void recordSuccess(boolean testUserRequested, long adminUserId, Long testUserId);
+    void recordFailure(BootstrapFailureCode reason, boolean testUserRequested);
+}
+```
+
+The T-002 service is implemented as a directly constructible application
+service and is not registered as a CDI bean until T-003 supplies CDI
+implementations for all three ports. T-003 then adds the service bean scope
+and transaction adapter together, avoiding an intermediate Quarkus runtime
+with unsatisfied CDI dependencies.
+
+`AccountBootstrapTransaction.execute` runs the callback in one database
+transaction and propagates failures. It does not write audit records or
+translate exceptions. The service calls `recordSuccess` inside the callback,
+so a success-audit failure rolls back the accounts. After `execute` returns
+exceptionally, the service calls `recordFailure` outside the rolled-back
+transaction and rethrows a safe bootstrap exception. The persistence adapter
+must run failure-audit writes in an independent transaction (T-003).
+
+`administratorExists` and email pre-checks occur while the serialization lock
+is held by the transaction adapter. The database unique constraint remains
+authoritative for concurrent or collation-level email conflicts; T-003 maps a
+unique-constraint conflict to `DUPLICATE_EMAIL`. The repository persists a
+supplied domain `User` and returns its generated ID; it does not choose roles
+or hash passwords.
+
+The service uses the existing `PasswordHasher` port to hash each password and
+constructs a `User` with the encoded hash and explicit role. Raw passwords
+must not be passed to repository or audit ports.
+
+`BootstrapFailureCode` is a safe enum containing `INVALID_INPUT`,
+`ADMIN_ALREADY_EXISTS`, `DUPLICATE_EMAIL`, `BOOTSTRAP_FAILURE`, and
+`AUDIT_FAILURE`.
+`AccountBootstrapException.reasonCode()` exposes only that code and must not
+retain raw input or an exception message. The CLI maps infrastructure failure
+to the established `DATABASE_FAILURE` output. Failure-audit exceptions do not
+replace the original bootstrap failure; safe logging fallback is T-003.
+
+Validation requires a non-null request and ADMIN details; optional USER
+details, when present, are also required fields. Name and password must be
+nonblank; name must fit the 150-character column; email must have valid syntax
+and fit the 255-character column; emails within one request must differ.
+Invalid values fail as `INVALID_INPUT` without persisting accounts. The
+service accepts no role parameter.
+
+### T-003 PostgreSQL adapter contract
+
+`PostgresUserAccountRepository` implements `UserAccountRepository` through
+composition with the existing Panache `UserRepository`. It must not extend or
+implement `PanacheRepository`: the application's `long persist(User)` conflicts
+with Panache's `void persist(User)`. The adapter delegates persistence, flushes
+within the account transaction to surface constraint failures, and returns
+the generated ID. Administrator existence
+is determined from `users.role = 'ADMIN'`; email existence is checked by exact
+stored email; persistence uses the existing `User` entity and returns its
+generated ID. The database unique constraint remains authoritative, and a
+unique-constraint violation is translated to `DUPLICATE_EMAIL` without
+including SQL or provider messages.
+
+`PostgresAccountBootstrapTransaction.execute(Supplier<T>)` is a CDI bean with
+a JTA transaction around the entire callback. Before invoking the callback it
+acquires one transaction-scoped PostgreSQL advisory lock using a stable
+64-bit key dedicated to this bootstrap operation. The lock, ADMIN check, all
+account inserts, and success audit therefore share the same transaction. The
+adapter propagates callback failures so JTA rolls back.
+
+`AccountProvisioningAuditRecord` maps only the seven V9 columns: `id`,
+`attempted_at`, `outcome`, `reason_code`, `test_user_requested`,
+`admin_user_id`, and `test_user_id`. `AccountProvisioningAuditRepository`
+persists that record. `PostgresAccountProvisioningAudit.recordSuccess` joins
+the current account transaction; failure must propagate so account creation
+rolls back. `recordFailure` runs in a new transaction after the account
+transaction has ended. Audit storage errors emit a structured safe log event
+with the outcome/reason only; never include exception text, identity data,
+passwords, or hashes. A success-write failure propagates as `AUDIT_FAILURE`;
+a failure-write error is logged and does not replace the original bootstrap
+failure.
+
+The T-003 persistence integration tests run against a UUID-scoped PostgreSQL
+schema migrated through V1-V9. Test setup may create/drop only that schema and
+must not mutate `public` application rows.
+
 ## Data Models
 
 ### Application user
@@ -41,6 +162,11 @@ and conversations. After migration V8:
 
 Domain account creation must require a nonblank hash and explicit role. No
 constructor or factory may create an application user without credentials.
+The T-002 domain constructor is `User(String name, String email,
+String passwordHash, UserRole role)`. It rejects null/blank name, email, or
+hash and null role; email syntax is validated by the application service. It
+initializes `created_at` as today. The old passwordless constructor is removed
+so production code cannot create an application account without credentials.
 
 ### Bootstrap audit record
 
@@ -152,21 +278,26 @@ troubleshooting.
 | T-002-T1 | Valid ADMIN-only bootstrap use case. | One ADMIN persisted with Argon2id hash and success result. |
 | T-002-T2 | Valid ADMIN + optional USER request. | Both accounts persisted with respective roles and hashes. |
 | T-002-T3 | Existing ADMIN. | No new users persisted; safe failure outcome. |
-| T-002-T4 | Duplicate email or blank required field. | No partial records; safe validation error. |
+| T-002-T4 | Blank/overlong required field, malformed email, duplicate email in the request, or email already persisted. | No partial records; `INVALID_INPUT` or `DUPLICATE_EMAIL`; failure audit is outside the account transaction. |
 | T-002-T5 | Hashing/persistence exception. | Transaction rolls back all requested accounts. |
-| T-003-T1 | Successful and failed audit writes. | Correct outcome/reason and requested-user flag; secret fields absent. |
-| T-003-T2 | Success-audit insert failure. | Account transaction rolls back; safe fallback log emitted. |
-| T-003-T3 | Failure-audit database unavailable. | Original failure remains safe; fallback log has no secret. |
-| T-003-T4 | Two concurrent bootstrap attempts. | One transaction succeeds; the other sees an existing ADMIN; exactly one ADMIN exists. |
-| T-004-T1 | Password prompt and matching confirmation. | Input is not echoed; hash is persisted; input buffers are cleared. |
-| T-004-T2 | Password confirmation mismatch. | No accounts written; exit `2`; mismatch not logged as secret. |
-| T-004-T3 | No interactive console. | Fail closed before account write. |
-| T-004-T4 | Unknown CLI option or attempt to pass password as an argument. | Refuse safely; no secret is echoed or persisted. |
-| T-004-T5 | Run bootstrap command artifact. | No HTTP socket and no OpenAI outbound request. |
-| T-005-T1 | Provision ADMIN then call existing login endpoint. | Login succeeds; JWT contains expected persisted identity and ADMIN role. |
-| T-005-T2 | Provision optional USER then call existing login endpoint. | Login succeeds; JWT contains expected persisted identity and USER role. |
-| T-005-T3 | Use resulting tokens with protected customer/admin endpoints. | Existing role authorization is unchanged. |
-| T-005-T4 | Verify all captured output, logs, and persisted audit/account rows. | No raw passwords, hashes, JWTs, or bootstrap secrets appear. |
+| T-002-T6 | Verify a generated hash with the existing configured Argon2id implementation. | The correct password matches; an incorrect password does not. |
+| T-003-T1 | Concurrent bootstrap transactions; release after commit/rollback. | Advisory lock serializes callbacks; exactly one ADMIN succeeds and the loser sees an existing ADMIN. |
+| T-003-T2 | Success audit commits with accounts; injected success-audit failure. | Both commit together, or all requested accounts roll back. |
+| T-003-T3 | Failure audit after account transaction rollback. | Account rows are absent; failure audit persists independently. |
+| T-003-T4 | Audit storage failure with sentinel secrets in the failure context. | Safe structured fallback is captured; original failure is preserved; no secrets or provider exception text leak. |
+| T-003-T5 | Persisted audit rows and schema inspection. | Exactly the seven approved columns; correct flags/outcome/IDs; no personal data, passwords, or hashes. |
+| T-003-T6 | Database email uniqueness violation. | Safe DUPLICATE_EMAIL, no SQL disclosure, and no partial account creation. |
+| T-004-T1 | Optional test-user flag, unknown options, attempted password argument. | Only approved option accepted; unsafe usage refused without echoing secrets. |
+| T-004-T2 | Hidden password prompt and confirmation; exceptional cleanup. | Input not echoed; matching values accepted; available char buffers cleared on all paths. |
+| T-004-T3 | No console or mismatched confirmation. | No account writes; safe failure and exit 2. |
+| T-004-T4 | Packaged bootstrap entry point. | No HTTP listener or OpenAI call; normal HTTP application still works. |
+| T-004-T5 | Successful, invalid-input, and runtime-failure command execution. | Safe output and approved exit codes 0, 2, and 1. |
+| T-005-T1 | Clean-install bootstrap with and without optional USER. | Correct account counts, roles, and credential hashes. |
+| T-005-T2 | Both provisioned accounts log in through existing REST endpoint. | Valid JWT subjects and roles match persisted accounts. |
+| T-005-T3 | Protected customer/admin operations with resulting tokens. | Existing authorization and ownership rules are preserved. |
+| T-005-T4 | Concurrent operator invocations. | Exactly one initial ADMIN; safe loser outcome. |
+| T-005-T5 | Captured output/logs and audit/account rows. | Plaintext passwords absent everywhere in persisted data/output; hashes only in users.password_hash, never logs/audit. |
+| T-005-T6 | Clean Flyway migration and complete backend validation. | Test and clean verify commands pass with recorded traceability. |
 
 ## Dependency/Version Policy
 

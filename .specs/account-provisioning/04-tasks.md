@@ -4,6 +4,11 @@ Implementation policy: complete and validate each task in order, then create
 one focused Conventional Commit for that task. Do not combine tasks into one
 commit; work remains on `main` as agreed for this solo project.
 
+Detailed completion criteria, evidence, and commit boundaries are specified in
+[the MVP execution plan](../mvp-release/04-execution-plan.md). T-003's existing
+structural assertions do not satisfy behavioral RED; complete behavioral tests
+before production implementation. This planning update changes no task state.
+
 ## T-001: Migrate test fixtures and require password hashes
 
 - AC-IDs: AC-007
@@ -37,33 +42,41 @@ commit; work remains on `main` as agreed for this solo project.
   - `src/main/java/com/victor/ecommerce/application/account/AccountBootstrapTransaction.java` (new)
   - `src/main/java/com/victor/ecommerce/application/account/UserAccountRepository.java` (new)
   - `src/main/java/com/victor/ecommerce/application/account/AccountProvisioningAudit.java` (new)
+  - `src/main/java/com/victor/ecommerce/application/account/BootstrapFailureCode.java` (new)
+  - `src/main/java/com/victor/ecommerce/application/account/AccountBootstrapException.java` (new)
   - `src/main/java/com/victor/ecommerce/domain/user/User.java`
   - `src/test/java/com/victor/ecommerce/application/account/AccountBootstrapServiceTest.java` (new)
+  - `src/test/java/com/victor/ecommerce/application/security/AuthenticationServiceTest.java`
   - `src/test/java/com/victor/ecommerce/domain/user/UserTest.java` (new)
 - Dependencies: T-001
 - Gates: unit tests, domain invariant tests, authentication regression tests
 - Rollback: revert the focused commit; preserve forward migrations and follow with a corrective migration if schema has already been applied.
-- Notes: keep role choice internal; do not accept arbitrary role strings from the CLI.
+- Notes: keep role choice internal; do not accept arbitrary role strings from the CLI. Follow the T-002 application contracts in `04-low-level-design.md`; success audit executes inside the account transaction, failure audit only after rollback. Update authentication test fixtures for the credential-required User constructor; use the protected persistence constructor only to simulate a malformed passwordless legacy row in the defensive login test.
 
 ## T-003: Add PostgreSQL persistence and audit adapters
 
-- AC-IDs: AC-001, AC-002, AC-005, AC-011
+- AC-IDs: AC-001, AC-002, AC-005, AC-010, AC-011
 - Test-IDs:
   - T-003-T1 — advisory transaction lock serializes bootstrap attempts
   - T-003-T2 — success audit commits with account creation
   - T-003-T3 — failure audit persists after account transaction rollback
   - T-003-T4 — audit failure falls back to a safe structured log
   - T-003-T5 — audit rows contain no names, emails, passwords, or hashes
+  - T-003-T6 — database uniqueness conflicts produce safe DUPLICATE_EMAIL without partial accounts
 - Files in scope:
+  - `src/main/java/com/victor/ecommerce/application/account/AccountBootstrapService.java` (register as CDI bean after adapters exist)
   - `src/main/java/com/victor/ecommerce/infrastructure/persistence/user/UserRepository.java`
+  - `src/main/java/com/victor/ecommerce/infrastructure/persistence/account/PostgresUserAccountRepository.java` (new; composition avoids Panache persist return-type conflict)
+  - `src/main/java/com/victor/ecommerce/infrastructure/persistence/account/PostgresAccountBootstrapTransaction.java` (new)
   - `src/main/java/com/victor/ecommerce/infrastructure/persistence/account/AccountProvisioningAuditRecord.java` (new)
   - `src/main/java/com/victor/ecommerce/infrastructure/persistence/account/AccountProvisioningAuditRepository.java` (new)
   - `src/main/java/com/victor/ecommerce/infrastructure/persistence/account/PostgresAccountProvisioningAudit.java` (new)
   - `src/test/java/com/victor/ecommerce/infrastructure/persistence/account/AccountBootstrapPersistenceTest.java` (new)
+  - `src/test/java/com/victor/ecommerce/infrastructure/persistence/account/AccountBootstrapPersistenceTestProfile.java` (new; isolated UUID schema)
 - Dependencies: T-001, T-002
 - Gates: PostgreSQL integration tests, transaction/rollback tests, no-secret log assertions
 - Rollback: revert the focused adapter commit; retain the additive audit schema unless a later forward migration removes it.
-- Notes: use PostgreSQL transaction-level advisory locking; no new persistence framework or logging platform.
+- Notes: use PostgreSQL transaction-level advisory locking; no new persistence framework or logging platform. Provide CDI implementations for every T-002 port before registering `AccountBootstrapService` as a bean.
 
 ## T-004: Add the secure operator command
 
@@ -141,5 +154,5 @@ workflow.
 | AC-007 | T-001, T-005 |
 | AC-008 | T-004, T-005 |
 | AC-009 | T-005 |
-| AC-010 | T-002, T-004, T-005 |
+| AC-010 | T-002, T-003, T-004, T-005 |
 | AC-011 | T-003, T-004, T-005 |

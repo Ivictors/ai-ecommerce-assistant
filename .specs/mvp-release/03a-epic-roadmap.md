@@ -2,6 +2,9 @@
 
 ## Ordered Slices
 
+Execution order, task completion criteria, validation evidence, and individual
+commit policy are detailed in [the execution plan](04-execution-plan.md).
+
 ### S-001 — Backend login and JWT issuance
 
 - Issue: #35 — complete (`1b34e54`, published on `main`).
@@ -12,7 +15,7 @@
 
 ### S-002 — Authenticated conversation creation
 
-- Issue: #47 — open.
+- Issue: #47 — complete (`6aac317`, published on `main`).
 - Scope: create a conversation owned only by the verified caller and return a
   usable identifier.
 - Acceptance focus: AC-004, AC-010, AC-011.
@@ -20,12 +23,13 @@
 
 ### S-003 — Secure account credential provisioning
 
-- Issue: #44 — open; design/security decision gate.
-- Scope: safely establish initial ADMIN and provision/reset credentials for
-  existing accounts with null hashes.
+- Issue: #44 — open; implementation in progress.
+- Scope: operator-only first ADMIN bootstrap with optional test USER,
+  targeted seed cleanup, mandatory password hashes, and safe audit.
 - Acceptance focus: AC-001, AC-011, AC-012.
 - Dependencies: #35.
-- Gate: select trusted first-ADMIN bootstrap authority before implementation.
+- Gate: complete account-provisioning T-003 behavioral RED, persistence,
+  operator command, and end-to-end validation. Bootstrap authority is approved.
 
 ### S-004 — Angular authentication and session
 
