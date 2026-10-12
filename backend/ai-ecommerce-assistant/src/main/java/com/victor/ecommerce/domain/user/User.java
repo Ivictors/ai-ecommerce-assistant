@@ -10,6 +10,7 @@ import jakarta.persistence.Id;
 import jakarta.persistence.Table;
 
 import java.time.Instant;
+import java.util.Objects;
 
 @Entity
 @Table(name = "users")
@@ -38,11 +39,12 @@ public class User {
     protected User() {
     }
 
-    public User(String name, String email) {
-        this.name = name;
-        this.email = email;
+    public User(String name, String email, String passwordHash, UserRole role) {
+        this.name = requireText(name, "name");
+        this.email = requireText(email, "email");
+        this.passwordHash = requireText(passwordHash, "passwordHash");
+        this.role = Objects.requireNonNull(role, "role");
         this.createdAt = Instant.now();
-        this.role = UserRole.USER;
     }
 
     public Long getId() {
@@ -71,5 +73,13 @@ public class User {
 
     public boolean hasCredential() {
         return passwordHash != null && !passwordHash.isBlank();
+    }
+
+    private static String requireText(String value, String fieldName) {
+        Objects.requireNonNull(value, fieldName);
+        if (value.isBlank()) {
+            throw new IllegalArgumentException(fieldName + " must not be blank");
+        }
+        return value;
     }
 }
