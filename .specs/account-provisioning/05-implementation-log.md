@@ -163,3 +163,39 @@
 - Phase: REFACTOR / SIMPLIFY — complete.
 - Validation: `mvnw.cmd test` — 94 passed, 0 failed, 0 errors; `mvnw.cmd clean verify` — build success. Explicitly removed the seven isolated schemas left by earlier failed RED executions; the final successful suite cleaned its own schema.
 - Timestamp: 2026-10-12T13:58:00-03:00
+
+## T-004 — RED
+
+- Test-IDs: T-004-T1, T-004-T2, T-004-T3, T-004-T4, T-004-T5
+- AC-IDs: AC-001, AC-003, AC-004, AC-008, AC-010, AC-011
+- Tests written:
+  - T-004-T1: command argument parser accepts no flag or only `--test-user` and rejects unknown flags.
+  - T-004-T2: password prompt contract requires hidden confirmed `char[]` values and a `Console` boundary.
+  - T-004-T3: command exposes stable exit codes and a fail-closed entry point contract.
+  - T-004-T4: bootstrap entry point must be an explicit Quarkus command named `account-bootstrap`.
+  - T-004-T5: bootstrap uses a dedicated `application-bootstrap.properties` profile resource.
+- RED run: `mvnw.cmd "-Dtest=AccountBootstrapCommandTest,BootstrapMainTest" test` — 5 tests, 5 assertion failures, 0 errors. Test sources compiled successfully; failures are the expected absence of the command, prompt, entry point, and profile resource. No T-004 production source was changed.
+- Phase: RED — expected contract absence confirmed without compile errors.
+- Timestamp: 2026-10-12T14:04:14-03:00
+
+## T-004 — GREEN
+
+- Implementation:
+  - Added the explicit `account-bootstrap` Quarkus command with stable success, invalid-input, and bootstrap-failure exit codes.
+  - Restricted arguments to the optional `--test-user` flag; unknown or repeated flags fail closed.
+  - Added console-only hidden password confirmation, returning a copy while clearing both input buffers immediately.
+  - Kept command output limited to IDs and approved failure reason codes; passwords, hashes, emails, and exception messages are never printed.
+  - Added `application-bootstrap.properties` to disable the HTTP listener and provide a non-secret sentinel for the mandatory OpenAI key configuration; the command does not invoke the AI provider.
+  - Kept the normal HTTP entry point unchanged. The named command is selected at packaging time with `-Dquarkus.package.main-class=account-bootstrap`; the bootstrap profile is selected explicitly with `-Dquarkus.profile=bootstrap`.
+- Targeted run: `mvnw.cmd "-Dtest=AccountBootstrapCommandTest,BootstrapMainTest" test` — 8 passed, 0 failed, 0 errors.
+- Phase: GREEN — complete.
+- Additional validation: `mvnw.cmd package -DskipTests "-Dquarkus.package.main-class=account-bootstrap"` followed by `java "-Dquarkus.profile=bootstrap" -jar target/quarkus-app/quarkus-run.jar` started the command profile with no HTTP listener and returned `Bootstrap failed: INVALID_INPUT` when no console was available. The initial run exposed and fixed the no-console exit-code classification.
+- Timestamp: 2026-10-12T14:27:40-03:00
+
+## T-004 — REFACTOR / SIMPLIFY
+
+- Review: command parsing, console interaction, application orchestration, and Quarkus entry point remain separate. No Picocli dependency or HTTP route was introduced. The named command is selected only for the bootstrap packaging profile; normal packaging keeps the existing HTTP entry point.
+- Security review: password input is hidden, confirmation buffers are cleared, returned buffers are cleared by the command after conversion, and output contains only IDs or fixed reason codes. No raw exception text is emitted.
+- Phase: REFACTOR / SIMPLIFY — complete.
+- Validation: final `mvnw.cmd clean verify` — 102 passed, 0 failed, 0 errors; build success. The three isolated schemas created by this final verification were explicitly removed before commit.
+- Timestamp: 2026-10-12T14:30:53-03:00
