@@ -51,3 +51,28 @@ No implementation phase has started yet. RED tests will be recorded task by task
 - Kept authorization out of the component; the backend remains authoritative.
 - Phase: REFACTOR / SIMPLIFY
 - Timestamp: 2026-10-13T00:55:00-03:00
+
+## T-003 — RED
+
+- Test-IDs: T-003-T1, T-003-T2, T-003-T3, T-003-T4
+- AC-IDs: AC-003, AC-004, AC-005, AC-007
+- Tests written: `auth.interceptor.spec.ts` covers backend, unrelated-origin, and no-session requests; `auth.guard.spec.ts` covers redirect and logout.
+- Expected result: the unrelated-origin test fails because the current interceptor adds the token to every request.
+- Phase: RED
+- Timestamp: 2026-10-13T01:10:00-03:00
+
+## T-003 — GREEN
+
+- Test-IDs: T-003-T1, T-003-T2, T-003-T3, T-003-T4
+- AC-IDs: AC-003, AC-004, AC-005, AC-007
+- Implementation: restricted bearer propagation to same-origin `/api/` requests and preserved token-free behavior for other requests.
+- Run result: 18 tests passed in 6 files.
+- Phase: GREEN
+- Timestamp: 2026-10-13T01:30:00-03:00
+
+## T-003 — REFACTOR / SIMPLIFY
+
+- The URL predicate is isolated, explicit, and fails closed for malformed URLs.
+- No client-side role or ownership authorization was introduced.
+- Phase: REFACTOR / SIMPLIFY
+- Timestamp: 2026-10-13T01:30:00-03:00

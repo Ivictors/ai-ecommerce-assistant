@@ -4,5 +4,18 @@ import { AuthService } from './auth.service';
 
 export const authInterceptor: HttpInterceptorFn = (request, next) => {
   const token = inject(AuthService).getAccessToken();
-  return next(token ? request.clone({ setHeaders: { Authorization: `Bearer ${token}` } }) : request);
+  if (!token || !isBackendApiRequest(request.url)) {
+    return next(request);
+  }
+
+  return next(request.clone({ setHeaders: { Authorization: `Bearer ${token}` } }));
 };
+
+function isBackendApiRequest(url: string): boolean {
+  try {
+    const target = new URL(url, globalThis.location.origin);
+    return target.origin === globalThis.location.origin && target.pathname.startsWith('/api/');
+  } catch {
+    return false;
+  }
+}
