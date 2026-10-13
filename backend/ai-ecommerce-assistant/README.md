@@ -52,3 +52,38 @@ Or, if you don't have GraalVM installed, you can run the native executable build
 You can then execute your native executable with: `./target/ai-ecommerce-assistant-1.0.0-SNAPSHOT-runner`
 
 If you want to learn more about building native executables, please consult <https://quarkus.io/guides/maven-tooling>.
+# AI E-Commerce Assistant — Backend
+
+Backend Quarkus do [AI E-Commerce Assistant](../../README.md). Ele expõe os
+casos de uso REST, mantém as regras de domínio e integra PostgreSQL/pgvector,
+Flyway, JWT, Argon2 e LangChain4j/OpenAI.
+
+## Executar
+
+Pré-requisitos: JDK 21, PostgreSQL 16 com pgvector e configuração das variáveis
+de ambiente presentes em `application.properties.example`.
+
+```powershell
+./mvnw.cmd quarkus:dev
+```
+
+Em Linux/macOS:
+
+```bash
+./mvnw quarkus:dev
+```
+
+As migrações são executadas pelo Flyway. O endpoint de chat exige autenticação,
+papel `USER` e o parâmetro `conversationId`. A administração de documentos é
+restrita ao papel `ADMIN`.
+
+## Testes e build
+
+```powershell
+./mvnw.cmd test
+./mvnw.cmd clean verify
+```
+
+Os testes de persistência requerem PostgreSQL disponível em `localhost:5432`.
+Consulte o README da raiz para arquitetura, configuração completa, contratos e
+o status da última validação.
