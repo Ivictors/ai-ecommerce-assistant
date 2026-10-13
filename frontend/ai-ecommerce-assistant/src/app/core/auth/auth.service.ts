@@ -1,9 +1,30 @@
-import { Injectable } from '@angular/core';
+import { HttpClient } from '@angular/common/http';
+import { Injectable, inject } from '@angular/core';
+import { Observable, catchError, map, tap, throwError } from 'rxjs';
+import { LoginRequest, LoginResponse } from './auth.model';
 
 const ACCESS_TOKEN_KEY = 'ai-ecommerce.access-token';
 
 @Injectable({ providedIn: 'root' })
 export class AuthService {
+  private readonly http = inject(HttpClient);
+
+  login(credentials: LoginRequest): Observable<LoginResponse> {
+    return this.http.post<LoginResponse>('/api/auth/login', credentials).pipe(
+      map((response) => {
+        if (!response || typeof response.accessToken !== 'string' || !response.accessToken.trim()) {
+          throw new Error('Invalid authentication response');
+        }
+        return response;
+      }),
+      tap((response) => this.setAccessToken(response.accessToken)),
+      catchError((error: unknown) => {
+        this.clearSession();
+        return throwError(() => error);
+      }),
+    );
+  }
+
   getAccessToken(): string | null {
     return sessionStorage.getItem(ACCESS_TOKEN_KEY);
   }
