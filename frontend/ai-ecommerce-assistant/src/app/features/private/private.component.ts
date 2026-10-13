@@ -1,4 +1,6 @@
-import { Component } from '@angular/core';
+import { Component, inject } from '@angular/core';
+import { Router } from '@angular/router';
+import { AuthService } from '../../core/auth/auth.service';
 
 @Component({
   selector: 'app-private',
@@ -7,8 +9,16 @@ import { Component } from '@angular/core';
     <main>
       <h1>AI E-Commerce Assistant</h1>
       <p>This area requires a backend-issued access token.</p>
-      <p>The login flow will be connected after issue #35 is implemented.</p>
+      <button type="button" data-testid="logout" (click)="logout()">Sign out</button>
     </main>
   `,
 })
-export class PrivateComponent {}
+export class PrivateComponent {
+  private readonly authService = inject(AuthService);
+  private readonly router = inject(Router);
+
+  protected logout(): void {
+    this.authService.clearSession();
+    void this.router.navigateByUrl('/login');
+  }
+}

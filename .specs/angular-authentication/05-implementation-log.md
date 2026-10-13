@@ -76,3 +76,29 @@ No implementation phase has started yet. RED tests will be recorded task by task
 - No client-side role or ownership authorization was introduced.
 - Phase: REFACTOR / SIMPLIFY
 - Timestamp: 2026-10-13T01:30:00-03:00
+
+## T-004 — RED
+
+- Test-IDs: T-004-T1, T-004-T2
+- AC-IDs: AC-003
+- Tests written: `private.component.spec.ts` requires a visible logout action that clears the session and navigates to `/login`.
+- Expected result: tests fail because the private shell has no logout action.
+- Phase: RED
+- Timestamp: 2026-10-13T01:50:00-03:00
+
+## T-004 — GREEN
+
+- Test-IDs: T-004-T1, T-004-T2
+- AC-IDs: AC-003
+- Implementation: added a visible private-shell logout action that clears the session and navigates to `/login`.
+- Run result: 20 tests passed in 7 files; production build passed.
+- Phase: GREEN
+- Timestamp: 2026-10-13T02:20:00-03:00
+
+## T-004 — REFACTOR / SIMPLIFY
+
+- Kept logout behavior in the private shell and reused `AuthService.clearSession()`.
+- Removed the stale placeholder text claiming login was not implemented.
+- No refresh-token or client-side authorization behavior was introduced.
+- Phase: REFACTOR / SIMPLIFY
+- Timestamp: 2026-10-13T02:20:00-03:00
