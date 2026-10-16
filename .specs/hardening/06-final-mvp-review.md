@@ -28,10 +28,9 @@
 
 ### Required before official production delivery
 
-- Resolve the frontend development-tree `source-map-js` high-severity audit
-  finding and rerun the dependency review. The production-only audit currently
-  reports zero vulnerabilities, but the full audit must be clean or formally
-  waived before release.
+- Keep the dependency audit in the release checklist. The `source-map-js`
+  high-severity finding was remediated in the follow-up dependency commit;
+  both full and production-only npm audits now report zero vulnerabilities.
 - Reassess the current Quarkus LTS patch, secrets management, TLS, backups,
   log retention/privacy, monitoring, and deployment rollback with production
   infrastructure evidence.
