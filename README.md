@@ -1,119 +1,96 @@
 # AI E-Commerce Assistant
 
-Assistente de e-commerce orientado por IA, construído como um monorepo com
-backend Quarkus e frontend Angular. O projeto combina catálogo, pedidos,
-autenticação, documentos de conhecimento e conversas contextualizadas sem
-permitir que o LLM seja a fonte de verdade para preço, estoque, autorização ou
-estado do pedido.
+AI-assisted e-commerce monorepo built with Quarkus, Angular, PostgreSQL,
+pgvector, LangChain4j, and OpenAI.
 
-## Problema resolvido
+The project demonstrates how to integrate an LLM into a deterministic
+application without allowing the model to become the source of truth for
+prices, inventory, authorization, payments, or order state.
 
-Uma operação de e-commerce precisa responder dúvidas e consultar informações de
-pedido com linguagem natural, mas as respostas devem continuar vinculadas a
-dados confiáveis do domínio. Este projeto separa a conversa assistida por IA
-dos casos de uso determinísticos: o assistente consulta serviços da aplicação,
-que aplicam autorização, regras de domínio e persistência.
+## Current MVP
 
-O estado atual inclui:
+The implemented MVP provides administrator bootstrap, Argon2id password
+hashing, RSA-signed JWT access tokens, role-based authorization, conversation
+ownership, product and order consultation, structured chat responses, scoped
+RAG documents, Angular screens, correlation IDs, health endpoints, and local
+container definitions.
 
-- login com JWT e senhas protegidas com Argon2;
-- catálogo de produtos e consulta de pedidos;
-- conversas autenticadas com `conversationId` obrigatório;
-- ingestão, processamento, publicação e remoção de documentos de conhecimento;
-- recuperação de conhecimento com embeddings e escopo controlado;
-- bootstrap operacional do primeiro administrador pela CLI;
-- frontend Angular para consumir catálogo, pedidos e chat.
+Refresh tokens, password recovery, checkout, payments, advanced inventory,
+promotions, returns, and reports are outside the MVP and tracked separately.
 
-## Arquitetura
+## Architecture
 
 ```mermaid
 flowchart TD
-    U[Cliente Angular] --> R[REST Resources]
-    R --> A[Application Services]
-    A --> D[Domain: produtos, pedidos, usuários e conhecimento]
-    A --> P[Ports e repositories]
+    U[Angular client] --> R[REST resources]
+    R --> A[Application services]
+    A --> D[Domain model]
+    A --> P[Repository and provider ports]
     P --> DB[(PostgreSQL + pgvector)]
-    R --> AUTH[JWT / autorização por papel]
-    A --> AI[AI Service]
-    AI --> T[AI Tools]
+    R --> S[JWT authentication and authorization]
+    A --> AI[LangChain4j AI service]
+    AI --> T[AI tools]
     T --> A
-    AI --> O[OpenAI via LangChain4j]
+    AI --> O[OpenAI]
 ```
 
-As dependências seguem `presentation -> application -> domain`; infraestrutura
-implementa persistência, segurança e integração com IA. As ferramentas da IA
-não acessam banco diretamente: elas delegam aos casos de uso da aplicação.
+The dependency direction is `presentation -> application -> domain`.
+Infrastructure implements persistence, security, and AI integration ports.
+AI tools delegate to application services instead of accessing the database directly.
 
-## Tecnologias
+## Technology
 
-### Backend
+- Java 21 and Quarkus 3.40.1 LTS;
+- REST, Jackson, Hibernate ORM/Panache, Bean Validation, and Flyway;
+- PostgreSQL 16 with pgvector;
+- SmallRye JWT and Argon2id password hashing;
+- LangChain4j/OpenAI for chat, memory, and embeddings;
+- Angular 22, TypeScript 6, RxJS, Vitest, and npm 11.
 
-- Java 21 e Quarkus 3.39.3;
-- REST, Jackson, Hibernate ORM/Panache e Bean Validation;
-- PostgreSQL 16 com extensão pgvector;
-- Flyway para migrações versionadas;
-- SmallRye JWT e Argon2;
-- LangChain4j/OpenAI para chat, memória de conversa e embeddings;
-- JUnit 5, Mockito e testes de integração com perfil PostgreSQL.
-
-### Frontend
-
-- Angular 22, TypeScript 6 e RxJS;
-- Vitest para testes unitários;
-- npm 11.
-
-## Como executar
-
-### Pré-requisitos
+## Prerequisites and secrets
 
 - JDK 21;
-- Docker Desktop e Docker Compose;
-- Node.js compatível com npm 11;
-- uma chave da OpenAI somente para executar os fluxos de IA.
+- Docker Desktop and Docker Compose;
+- Node.js compatible with npm 11;
+- an OpenAI API key for live AI flows;
+- locally generated RSA keys for JWT signing and verification.
 
-### Banco local
+Never commit `.env`, credentials, access tokens, private keys, or API keys.
+The repository intentionally does not provide a tracked `.env.example` file.
 
-Defina as variáveis usadas pelo Compose em um arquivo `.env` na raiz. O arquivo
-é local e não deve ser versionado:
+Create an untracked `.env` file at the repository root:
 
 ```dotenv
 POSTGRES_DB=ecommerce
 POSTGRES_USER=ecommerce
-POSTGRES_PASSWORD=ecommerce
+POSTGRES_PASSWORD=change-me-locally
 ```
 
-Inicie o PostgreSQL com pgvector:
+## Local execution
+
+Start and stop PostgreSQL with:
 
 ```powershell
 docker compose up -d
+docker compose down
 ```
 
-### Backend
-
-Configure `OPENAI_API_KEY` e, se necessário, as variáveis de JWT descritas em
-`backend/ai-ecommerce-assistant/application.properties.example`. Depois execute:
+Run the backend on Windows:
 
 ```powershell
 cd backend/ai-ecommerce-assistant
-./mvnw quarkus:dev       # Linux/macOS
-./mvnw.cmd quarkus:dev   # Windows
+./mvnw.cmd quarkus:dev
 ```
 
-As migrações Flyway são aplicadas automaticamente. O backend fica disponível
-em `http://localhost:8080`.
-
-O primeiro administrador não é criado por endpoint público. Use a aplicação
-Quarkus em modo bootstrap, com entrada interativa no terminal:
+The API is available at `http://localhost:8080`. The first administrator is
+created through the protected CLI command, not a public HTTP endpoint:
 
 ```powershell
 ./mvnw.cmd quarkus:run
+./mvnw.cmd quarkus:run -Dquarkus.args="--test-user"
 ```
 
-Para criar também um usuário de teste, passe `-Dquarkus.args="--test-user"`.
-O `@QuarkusMain` registrado pela aplicação seleciona o comando
-`account-bootstrap`.
-
-### Frontend
+Run the frontend with:
 
 ```powershell
 cd frontend/ai-ecommerce-assistant
@@ -121,80 +98,84 @@ npm ci
 npm start
 ```
 
-Abra `http://localhost:4200`. Para uma compilação de produção use `npm run
-build`.
+The frontend is available at `http://localhost:4200`.
 
-## Contratos HTTP principais
+## MVP container stack
 
-| Método | Rota | Finalidade |
-| --- | --- | --- |
-| `POST` | `/api/auth/login` | autenticar e obter token |
-| `GET` | `/api/products` | listar produtos |
-| `GET` | `/api/products/{id}` | consultar produto |
-| `GET` | `/api/orders/{id}` | consultar pedido autorizado |
-| `GET/POST` | `/api/conversations` | listar/criar conversas |
-| `POST` | `/api/chat?conversationId={id}` | conversar como usuário autenticado |
-| `POST` | `/api/knowledge-documents` | enviar documento como administrador |
+The `docker-compose.mvp.yml` stack requires external database credentials,
+`OPENAI_API_KEY`, and `JWT_KEYS_DIR`.
 
-O endpoint de chat recebe texto puro e exige `conversationId`; documentos de
-conhecimento são protegidos por papel administrativo. A implementação atual é a
-fonte do contrato detalhado e dos códigos de erro.
-
-## Testes realizados
-
-Executados em 13 de outubro de 2026:
-
-- `npm test -- --watch=false`: **2 testes aprovados**;
-- `npm run build`: **aprovado**;
-- `./mvnw.cmd test`: não concluiu porque o teste de persistência tentou acessar
-  `localhost:5432` enquanto o PostgreSQL local estava desligado. O erro é de
-  ambiente (`Connection refused`), não uma falha de asserção. Inicie o Compose
-  antes de repetir o comando.
-
-Backend e frontend também possuem testes de contrato, autorização, domínio,
-serviços de aplicação, segurança, persistência e integração. A validação de
-produção exige repetir os testes Maven com PostgreSQL disponível.
-
-## Decisões técnicas
-
-- O domínio não depende de REST, JSON, LangChain4j ou detalhes de Panache.
-- Recursos REST são finos; regras de negócio pertencem ao domínio e aos
-  serviços de aplicação.
-- O LLM é tratado como entrada não confiável. Preços, estoque, autorização,
-  pagamentos e estados de pedido vêm de dados e regras determinísticas.
-- JWT separa autenticação de autorização; a propriedade `role` é mapeada para
-  os papéis usados pelas rotas.
-- O bootstrap do primeiro administrador é operacional e protegido por lock
-  transacional PostgreSQL; não existe provisionamento público equivalente.
-- Migrações Flyway são aditivas e o Hibernate valida o schema em vez de
-  alterá-lo automaticamente.
-
-## Estrutura
-
-```text
-backend/ai-ecommerce-assistant/
-  src/main/java/com/victor/ecommerce/
-    domain/          regras e conceitos de negócio
-    application/     casos de uso e orquestração
-    infrastructure/  banco, segurança e IA
-    presentation/    REST e CLI
-frontend/ai-ecommerce-assistant/
-  src/app/           aplicação Angular
-specs/               contratos, guardrails e desenvolvimento orientado a specs
-docker-compose.yml   PostgreSQL com pgvector
+```powershell
+cd backend/ai-ecommerce-assistant
+./mvnw.cmd package -DskipTests
+cd ../..
+docker compose -f docker-compose.mvp.yml config
+docker compose -f docker-compose.mvp.yml up -d
 ```
 
-## Segurança e configuração
+The backend health endpoints are `/q/health/live` and `/q/health/ready`.
 
-Não versione `.env`, chaves JWT, credenciais, tokens ou chaves da OpenAI. Os
-valores de configuração devem vir de variáveis de ambiente ou de arquivos locais
-ignorados pelo Git. Antes de abrir uma contribuição, revise `AGENTS.md` e os
-documentos em `specs/`.
+## Main HTTP contracts
+
+| Method | Route | Purpose |
+| --- | --- | --- |
+| `POST` | `/api/auth/login` | Authenticate and obtain an access token |
+| `GET` | `/api/products` | List products |
+| `GET` | `/api/products/{id}` | Retrieve a product |
+| `GET` | `/api/orders` | List orders owned by the authenticated user |
+| `GET` | `/api/orders/{id}` | Retrieve an authorized order |
+| `GET/POST` | `/api/conversations` | List or create owned conversations |
+| `POST` | `/api/chat?conversationId={id}` | Chat in an owned conversation |
+| `POST` | `/api/knowledge-documents` | Upload a document as an administrator |
+
+The detailed contract is maintained in `specs/CONTRACT.md` and the relevant
+feature specifications under `.specs/`.
+
+## Validation
+
+The latest recorded MVP validation is:
+
+- backend `mvnw.cmd clean verify`: 106 tests passed;
+- frontend `npm test -- --watch=false`: 42 tests passed in 16 files;
+- frontend `npm run build`: passed;
+- full and production-only npm audits: zero vulnerabilities;
+- backend and frontend container images: built successfully;
+- Docker services: stopped after validation.
+
+The current Maven profile executes database-backed integration tests through
+Surefire and intentionally skips Failsafe integration-test execution. Browser
+manual acceptance and live OpenAI/RAG quality validation are tracked in issue
+#50; test execution separation is tracked in issue #52.
+
+## Engineering workflow
+
+This repository follows Spec Loops Driven Development (SLDD):
+
+```text
+requirements -> business rules -> design -> tests -> implementation -> validation
+```
+
+Before changing behavior, read `AGENTS.md`, `specs/SPEC_DRIVEN_DEVELOPMENT.md`,
+`specs/CONTRACT.md`, `specs/GUARDRAILS.md`, the relevant feature specification,
+existing tests, and the current implementation.
+
+All work is performed sequentially on `main`. Use Conventional Commits and keep
+each issue in an individual commit. Do not deploy production from this workflow.
+
+## Repository structure
+
+```text
+backend/ai-ecommerce-assistant/  Quarkus application
+frontend/ai-ecommerce-assistant/ Angular application
+specs/                           contracts and development process
+.specs/                          feature specifications and evidence
+docker-compose.yml               PostgreSQL and pgvector
+docker-compose.mvp.yml           local three-service MVP stack
+```
 
 ## Status
 
-O projeto está em desenvolvimento ativo. A base de autenticação, catálogo,
-pedidos, chat, conhecimento e bootstrap administrativo está implementada; a
-prontidão para produção depende de executar a suíte completa com PostgreSQL,
-configurar chaves reais de forma segura e validar os fluxos de negócio ponta a
-ponta.
+The MVP is ready for repository-level review and local demonstration. Official
+production delivery is not authorized yet. Production hardening, CI quality
+gates, browser/live-provider acceptance, refresh-token lifecycle, password
+recovery, and transactional commerce remain tracked in GitHub Issues.

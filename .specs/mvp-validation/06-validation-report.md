@@ -2,12 +2,15 @@
 
 ## Results
 
-- Backend `./mvnw.cmd clean verify`: PASS — 104 tests, 0 failures/errors.
+- Backend `mvnw.cmd clean verify`: PASS — 106 tests, 0 failures/errors.
 - Frontend `npm test -- --watch=false`: PASS — 42 tests in 16 files.
 - Frontend `npm run build`: PASS.
-- Docker PostgreSQL/pgvector: PASS — Compose service healthy and persistence integration tests executed.
+- `npm audit --audit-level=high`: PASS — zero vulnerabilities.
+- `npm audit --omit=dev --audit-level=high`: PASS — zero vulnerabilities.
+- Docker PostgreSQL/pgvector: PASS — Compose service healthy and persistence
+  integration tests executed.
 
-## Validated Journey
+## Validated journey
 
 - Authentication/session contract and safe `401` handling.
 - Product list/detail contract with backend-owned values.
@@ -17,7 +20,16 @@
 - RAG no-context behavior remains covered by backend tests.
 - Ownership and role enforcement remain covered by backend security tests.
 
-## Limitations
+## Completed delivery gates
 
-- Browser manual acceptance and live OpenAI quality are not evidence of automated tests; provider behavior remains controlled by existing test doubles/configuration.
-- Operational observability and reproducible release packaging remain issues #13 and #14.
+Operational observability, reproducible release packaging, LTS alignment, and
+the hardening review were completed in issues #13, #14, #48, and #15.
+
+## Explicit validation limits
+
+- Browser manual acceptance and live OpenAI/RAG quality remain unverified and
+  are tracked in issue #50.
+- The current Maven profile executes database-backed integration tests through
+  Surefire and skips Failsafe; test execution separation is tracked in issue
+  #52.
+- No production deployment was performed.
