@@ -1,7 +1,7 @@
 # AI E-Commerce Assistant
 
 AI-assisted e-commerce monorepo built with Quarkus, Angular, PostgreSQL,
-pgvector, LangChain4j, and OpenAI.
+pgvector, LangChain4j, and NVIDIA NIM Cloud.
 
 The project demonstrates how to integrate an LLM into a deterministic
 application without allowing the model to become the source of truth for
@@ -31,7 +31,7 @@ flowchart TD
     A --> AI[LangChain4j AI service]
     AI --> T[AI tools]
     T --> A
-    AI --> O[OpenAI]
+    AI --> O[NVIDIA NIM Cloud]
 ```
 
 The dependency direction is `presentation -> application -> domain`.
@@ -44,7 +44,7 @@ AI tools delegate to application services instead of accessing the database dire
 - REST, Jackson, Hibernate ORM/Panache, Bean Validation, and Flyway;
 - PostgreSQL 16 with pgvector;
 - SmallRye JWT and Argon2id password hashing;
-- LangChain4j/OpenAI for chat, memory, and embeddings;
+- LangChain4j with NVIDIA NIM Cloud for chat and the existing embedding provider;
 - Angular 22, TypeScript 6, RxJS, Vitest, and npm 11.
 
 ## Prerequisites and secrets
@@ -52,11 +52,16 @@ AI tools delegate to application services instead of accessing the database dire
 - JDK 21;
 - Docker Desktop and Docker Compose;
 - Node.js compatible with npm 11;
-- an OpenAI API key for live AI flows;
+- an NVIDIA API key for live AI flows;
 - locally generated RSA keys for JWT signing and verification.
 
 Never commit `.env`, credentials, access tokens, private keys, or API keys.
 The repository intentionally does not provide a tracked `.env.example` file.
+
+The MVP uses NVIDIA NIM Cloud for chat through LangChain4j's OpenAI-compatible
+adapter. This keeps the application code and `/api/chat` contract provider
+agnostic. Embeddings remain unchanged because existing pgvector data uses a
+1536-dimensional schema; changing embeddings is a separate future migration.
 
 Create an untracked `.env` file at the repository root:
 
@@ -103,7 +108,7 @@ The frontend is available at `http://localhost:4200`.
 ## MVP container stack
 
 The `docker-compose.mvp.yml` stack requires external database credentials,
-`OPENAI_API_KEY`, and `JWT_KEYS_DIR`.
+`NVIDIA_API_KEY`, and `JWT_KEYS_DIR`.
 
 ```powershell
 cd backend/ai-ecommerce-assistant
@@ -135,7 +140,7 @@ feature specifications under `.specs/`.
 
 The latest recorded MVP validation is:
 
-- backend `mvnw.cmd clean verify`: 106 tests passed;
+- backend `mvnw.cmd clean verify`: 109 tests passed;
 - frontend `npm test -- --watch=false`: 42 tests passed in 16 files;
 - frontend `npm run build`: passed;
 - full and production-only npm audits: zero vulnerabilities;
@@ -144,23 +149,17 @@ The latest recorded MVP validation is:
 
 The current Maven profile executes database-backed integration tests through
 Surefire and intentionally skips Failsafe integration-test execution. Browser
-manual acceptance and live OpenAI/RAG quality validation are tracked in issue
-#50; test execution separation is tracked in issue #52.
+manual acceptance and live AI/RAG quality validation are tracked in issue #50;
+test execution separation is tracked in issue #52.
 
 ## Engineering workflow
 
-This repository follows Spec Loops Driven Development (SLDD):
-
-```text
-requirements -> business rules -> design -> tests -> implementation -> validation
-```
-
-Before changing behavior, read `AGENTS.md`, `specs/SPEC_DRIVEN_DEVELOPMENT.md`,
-`specs/CONTRACT.md`, `specs/GUARDRAILS.md`, the relevant feature specification,
-existing tests, and the current implementation.
-
-All work is performed sequentially on `main`. Use Conventional Commits and keep
-each issue in an individual commit. Do not deploy production from this workflow.
+The repository now uses a lightweight issue-driven workflow for the remaining
+MVP work. Each issue defines its scope and acceptance criteria, changes are
+made sequentially on `main`, and each issue receives an individual Conventional
+Commit. Existing specifications remain historical project context; new work
+does not create additional SLDD artifacts. Do not deploy production from this
+workflow.
 
 ## Repository structure
 

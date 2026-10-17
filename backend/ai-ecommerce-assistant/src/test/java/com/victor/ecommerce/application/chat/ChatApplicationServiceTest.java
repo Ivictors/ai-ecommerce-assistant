@@ -110,4 +110,39 @@ class ChatApplicationServiceTest {
 
         assertEquals(ChatResponseType.FALLBACK, service.chat(10L, "find notebook").type());
     }
+
+    @Test
+    void wrapsProviderFailureDuringClassification() {
+        EcommerceAssistant assistant = mock(EcommerceAssistant.class);
+        ConversationService conversations = mock(ConversationService.class);
+        CurrentUserService currentUser = mock(CurrentUserService.class);
+        Conversation conversation = mock(Conversation.class);
+        when(conversation.getId()).thenReturn(10L);
+        when(currentUser.getUserId()).thenReturn(7L);
+        when(conversations.findByIdForUser(10L, 7L)).thenReturn(Optional.of(conversation));
+        when(assistant.classify("hello")).thenThrow(new RuntimeException("provider rejected key"));
+
+        ChatApplicationService service = new ChatApplicationService(assistant, conversations, currentUser);
+
+        assertThrows(AiServiceException.class, () -> service.chat(10L, "hello"));
+    }
+
+    @Test
+    void wrapsProviderFailureDuringChat() {
+        EcommerceAssistant assistant = mock(EcommerceAssistant.class);
+        ConversationService conversations = mock(ConversationService.class);
+        CurrentUserService currentUser = mock(CurrentUserService.class);
+        KnowledgeRetriever retriever = mock(KnowledgeRetriever.class);
+        Conversation conversation = mock(Conversation.class);
+        when(conversation.getId()).thenReturn(10L);
+        when(currentUser.getUserId()).thenReturn(7L);
+        when(conversations.findByIdForUser(10L, 7L)).thenReturn(Optional.of(conversation));
+        when(assistant.classify("hello")).thenReturn(new UserIntent("UNKNOWN", null));
+        when(retriever.retrieve("hello")).thenReturn(List.of());
+        when(assistant.chat(any(), any())).thenThrow(new RuntimeException("provider rejected key"));
+
+        ChatApplicationService service = new ChatApplicationService(assistant, conversations, currentUser, retriever);
+
+        assertThrows(AiServiceException.class, () -> service.chat(10L, "hello"));
+    }
 }

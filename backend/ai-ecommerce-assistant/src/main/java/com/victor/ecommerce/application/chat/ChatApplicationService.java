@@ -63,7 +63,7 @@ public class ChatApplicationService {
             throw new ConversationNotFoundException(conversationId);
         }
 
-        var validatedIntent = intentValidator.validate(assistant.classify(message));
+        var validatedIntent = intentValidator.validate(classify(message));
         if (validatedIntent.type() == IntentType.PRODUCT_INFORMATION && productService != null) {
             return productService.findByName(validatedIntent.productName())
                     .filter(product -> product.isActive())
@@ -87,9 +87,25 @@ public class ChatApplicationService {
                 ? "No approved knowledge context was found. Do not invent or assert company policy. If this is a policy question, explain that the available knowledge is insufficient.\n\nUser question:\n" + message
                 : "Approved knowledge context:\n" + knowledge.stream().map(item -> item.content()).reduce((a, b) -> a + "\n" + b).orElse("") + "\n\nUser question:\n" + message;
 
-        return ChatResponse.text(assistant.chat(
+        return ChatResponse.text(chatWithAssistant(
                 conversation.getId().toString(),
                 groundedMessage
         ));
+    }
+
+    private com.victor.ecommerce.infrastructure.ai.dto.UserIntent classify(String message) {
+        try {
+            return assistant.classify(message);
+        } catch (RuntimeException exception) {
+            throw new AiServiceException("AI provider classification failed", exception);
+        }
+    }
+
+    private String chatWithAssistant(String memoryId, String message) {
+        try {
+            return assistant.chat(memoryId, message);
+        } catch (RuntimeException exception) {
+            throw new AiServiceException("AI provider chat failed", exception);
+        }
     }
 }
