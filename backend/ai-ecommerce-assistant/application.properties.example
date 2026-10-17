@@ -7,7 +7,7 @@ quarkus.hibernate-orm.schema-management.strategy=validate
 
 quarkus.langchain4j.openai.api-key=${NVIDIA_API_KEY}
 quarkus.langchain4j.openai.base-url=${NVIDIA_BASE_URL:https://integrate.api.nvidia.com/v1}
-quarkus.langchain4j.openai.chat-model.model-name=${NVIDIA_CHAT_MODEL:meta/llama-3.3-70b-instruct}
+quarkus.langchain4j.openai.chat-model.model-name=${NVIDIA_CHAT_MODEL:deepseek-ai/deepseek-v4.1-flash}
 quarkus.langchain4j.openai.chat-model.temperature=0.2
 quarkus.langchain4j.openai.embedding-model.model-name=text-embedding-3-small
 quarkus.langchain4j.chat-memory.type=MESSAGE_WINDOW

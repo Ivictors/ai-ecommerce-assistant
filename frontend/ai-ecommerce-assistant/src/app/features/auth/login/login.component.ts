@@ -1,14 +1,14 @@
 import { CommonModule } from '@angular/common';
 import { Component, inject, signal } from '@angular/core';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
-import { Router } from '@angular/router';
+import { Router, RouterLink } from '@angular/router';
 import { finalize } from 'rxjs';
 import { AuthService } from '../../../core/auth/auth.service';
 
 @Component({
   selector: 'app-login',
   standalone: true,
-  imports: [CommonModule, ReactiveFormsModule],
+  imports: [CommonModule, ReactiveFormsModule, RouterLink],
   template: `
     <main>
       <h1>Sign in</h1>
@@ -29,6 +29,7 @@ import { AuthService } from '../../../core/auth/auth.service';
         <button type="submit" [disabled]="submitting()">
           {{ submitting() ? 'Signing in…' : 'Sign in' }}
         </button>
+        <a routerLink="/register">Create an account</a>
       </form>
     </main>
   `,

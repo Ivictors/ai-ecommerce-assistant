@@ -1,7 +1,7 @@
 import { HttpClient } from '@angular/common/http';
 import { Injectable, inject } from '@angular/core';
 import { Observable, catchError, map, tap, throwError } from 'rxjs';
-import { LoginRequest, LoginResponse } from './auth.model';
+import { LoginRequest, LoginResponse, RegistrationRequest, RegistrationResponse } from './auth.model';
 
 const ACCESS_TOKEN_KEY = 'ai-ecommerce.access-token';
 
@@ -23,6 +23,10 @@ export class AuthService {
         return throwError(() => error);
       }),
     );
+  }
+
+  register(request: RegistrationRequest): Observable<RegistrationResponse> {
+    return this.http.post<RegistrationResponse>('/api/auth/register', request);
   }
 
   getAccessToken(): string | null {

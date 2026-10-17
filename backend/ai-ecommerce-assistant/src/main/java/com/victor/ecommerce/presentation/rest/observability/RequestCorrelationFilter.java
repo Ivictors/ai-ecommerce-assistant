@@ -38,4 +38,12 @@ public class RequestCorrelationFilter implements ContainerRequestFilter, Contain
             responseContext.getHeaders().putSingle(HEADER_NAME, value);
         }
     }
+
+    public static String requestId(ContainerRequestContext requestContext) {
+        if (requestContext == null) {
+            return "unavailable";
+        }
+        Object requestId = requestContext.getProperty(PROPERTY_NAME);
+        return requestId instanceof String value ? value : "unavailable";
+    }
 }

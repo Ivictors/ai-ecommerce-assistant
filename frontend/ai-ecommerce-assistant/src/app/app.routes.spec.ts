@@ -11,6 +11,10 @@ describe('application routes', () => {
     await expect(loginRoute?.loadComponent?.()).resolves.toBeTruthy();
   });
 
+  it('T-002-T5 exposes a public registration route', () => {
+    expect(routes.some((route) => route.path === 'register')).toBe(true);
+  });
+
   it('T-002-T3 AC-007 sends the public entry route to login', () => {
     expect(routes.find((route) => route.path === '')?.redirectTo).toBe('login');
   });
