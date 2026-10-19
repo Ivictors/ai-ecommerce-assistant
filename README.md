@@ -7,16 +7,16 @@ The project demonstrates how to integrate an LLM into a deterministic
 application without allowing the model to become the source of truth for
 prices, inventory, authorization, payments, or order state.
 
-## Current MVP
+## Current capabilities
 
-The implemented MVP provides administrator bootstrap, Argon2id password
+The project provides administrator bootstrap, user registration, Argon2id password
 hashing, RSA-signed JWT access tokens, role-based authorization, conversation
 ownership, product and order consultation, structured chat responses, scoped
 RAG documents, Angular screens, correlation IDs, health endpoints, and local
 container definitions.
 
 Refresh tokens, password recovery, checkout, payments, advanced inventory,
-promotions, returns, and reports are outside the MVP and tracked separately.
+promotions, returns, and reports are not implemented and are tracked separately.
 
 ## Architecture
 
@@ -58,8 +58,8 @@ AI tools delegate to application services instead of accessing the database dire
 Never commit `.env`, credentials, access tokens, private keys, or API keys.
 The repository intentionally does not provide a tracked `.env.example` file.
 
-The MVP uses NVIDIA NIM Cloud for chat through LangChain4j's OpenAI-compatible
-adapter. This keeps the application code and `/api/chat` contract provider
+Chat uses NVIDIA NIM Cloud through LangChain4j's OpenAI-compatible adapter.
+This keeps the application code and `/api/chat` contract provider
 agnostic. Embeddings remain unchanged because existing pgvector data uses a
 1536-dimensional schema; changing embeddings is a separate future migration.
 
@@ -105,7 +105,7 @@ npm start
 
 The frontend is available at `http://localhost:4200`.
 
-## MVP container stack
+## Container stack
 
 The `docker-compose.mvp.yml` stack requires external database credentials,
 `NVIDIA_API_KEY`, and `JWT_KEYS_DIR`.
@@ -124,6 +124,7 @@ The backend health endpoints are `/q/health/live` and `/q/health/ready`.
 
 | Method | Route | Purpose |
 | --- | --- | --- |
+| `POST` | `/api/auth/register` | Register a user with a `USER` role |
 | `POST` | `/api/auth/login` | Authenticate and obtain an access token |
 | `GET` | `/api/products` | List products |
 | `GET` | `/api/products/{id}` | Retrieve a product |
@@ -136,16 +137,21 @@ The backend health endpoints are `/q/health/live` and `/q/health/ready`.
 The detailed contract is maintained in `specs/CONTRACT.md` and the relevant
 feature specifications under `.specs/`.
 
-## Validation
+## Validation status
 
-The latest recorded MVP validation is:
+The latest local validation recorded in the repository is:
 
-- backend `mvnw.cmd clean verify`: 109 tests passed;
-- frontend `npm test -- --watch=false`: 42 tests passed in 16 files;
+- frontend `npm test -- --watch=false`: 51 tests passed in 17 files;
 - frontend `npm run build`: passed;
-- full and production-only npm audits: zero vulnerabilities;
-- backend and frontend container images: built successfully;
-- Docker services: stopped after validation.
+- backend `mvnw.cmd clean verify`: 113 tests passed and 1 failed because the
+  shared local database already contains the provisional administrator while
+  the bootstrap test expects an empty administrator set;
+- browser acceptance and live NVIDIA/RAG validation remain pending in issues
+  [#50](https://github.com/Ivictors/ai-ecommerce-assistant/issues/50) and
+  [#57](https://github.com/Ivictors/ai-ecommerce-assistant/issues/57);
+- the authentication interface is implemented, with manual desktop and mobile
+  review pending in issue
+  [#58](https://github.com/Ivictors/ai-ecommerce-assistant/issues/58).
 
 The current Maven profile executes database-backed integration tests through
 Surefire and intentionally skips Failsafe integration-test execution. Browser
@@ -154,8 +160,8 @@ test execution separation is tracked in issue #52.
 
 ## Engineering workflow
 
-The repository now uses a lightweight issue-driven workflow for the remaining
-MVP work. Each issue defines its scope and acceptance criteria, changes are
+The repository uses a lightweight issue-driven workflow for ongoing work. Each
+issue defines its scope and acceptance criteria, changes are
 made sequentially on `main`, and each issue receives an individual Conventional
 Commit. Existing specifications remain historical project context; new work
 does not create additional SLDD artifacts. Do not deploy production from this
@@ -169,12 +175,12 @@ frontend/ai-ecommerce-assistant/ Angular application
 specs/                           contracts and development process
 .specs/                          feature specifications and evidence
 docker-compose.yml               PostgreSQL and pgvector
-docker-compose.mvp.yml           local three-service MVP stack
+docker-compose.mvp.yml           local three-service container stack
 ```
 
 ## Status
 
-The MVP is ready for repository-level review and local demonstration. Official
-production delivery is not authorized yet. Production hardening, CI quality
+The project is ready for repository-level review and local demonstration.
+Official production delivery is not authorized yet. Production hardening, CI quality
 gates, browser/live-provider acceptance, refresh-token lifecycle, password
 recovery, and transactional commerce remain tracked in GitHub Issues.
