@@ -92,4 +92,56 @@ describe('RegisterComponent', () => {
     expect(fixture.nativeElement.querySelector('[role="alert"]')?.textContent)
       .toContain('already registered');
   });
+
+  it('renders field-level errors and accessible associations', () => {
+    const form = fixture.nativeElement.querySelector('form') as HTMLFormElement;
+    form.dispatchEvent(new Event('submit'));
+    fixture.detectChanges();
+
+    expect(fixture.nativeElement.querySelector('#name[aria-describedby="name-error"]')).toBeTruthy();
+    expect(fixture.nativeElement.querySelector('#email-error')?.textContent).toContain('valid email');
+    expect(fixture.nativeElement.querySelector('#password-confirmation-error')?.textContent)
+      .toContain('confirmation is required');
+  });
+
+  it('disables submission while registration is pending', () => {
+    vi.spyOn(router, 'navigateByUrl').mockResolvedValue(true);
+    const component = fixture.componentInstance as unknown as {
+      form: { setValue: (value: { name: string; email: string; password: string; passwordConfirmation: string }) => void };
+      submit: () => void;
+    };
+    component.form.setValue({
+      name: 'Test User',
+      email: 'user@example.com',
+      password: 'secret',
+      passwordConfirmation: 'secret',
+    });
+    component.submit();
+    fixture.detectChanges();
+
+    expect(fixture.nativeElement.querySelector('button[type="submit"]').disabled).toBe(true);
+    http.expectOne('/api/auth/register').flush({ id: 1, name: 'Test User', email: 'user@example.com', role: 'USER' });
+  });
+
+  it('uses a safe message for server validation failures', async () => {
+    vi.spyOn(router, 'navigateByUrl').mockResolvedValue(true);
+    const component = fixture.componentInstance as unknown as {
+      form: { setValue: (value: { name: string; email: string; password: string; passwordConfirmation: string }) => void };
+      submit: () => void;
+    };
+    component.form.setValue({
+      name: 'Test User',
+      email: 'user@example.com',
+      password: 'secret',
+      passwordConfirmation: 'secret',
+    });
+    component.submit();
+    http.expectOne('/api/auth/register').flush({ message: 'internal database details' }, { status: 422, statusText: 'Unprocessable Entity' });
+    await fixture.whenStable();
+    fixture.detectChanges();
+
+    expect(fixture.nativeElement.querySelector('[role="alert"]')?.textContent)
+      .toContain('Unable to create account');
+    expect(fixture.nativeElement.textContent).not.toContain('internal database details');
+  });
 });
