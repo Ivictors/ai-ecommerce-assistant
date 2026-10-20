@@ -4,6 +4,7 @@ import com.victor.ecommerce.domain.knowledge.KnowledgeChunk;
 import com.victor.ecommerce.domain.knowledge.KnowledgeDocumentVersion;
 import com.victor.ecommerce.infrastructure.persistence.knowledge.KnowledgeChunkRepository;
 import com.victor.ecommerce.application.observability.ApplicationMetrics;
+import com.victor.ecommerce.application.observability.ApplicationTracing;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 import jakarta.transaction.Transactional;
@@ -16,26 +17,37 @@ public class DocumentProcessingService {
     private final DocumentChunker chunker;
     private final EmbeddingPort embeddings;
     private final ApplicationMetrics metrics;
+    private final ApplicationTracing tracing;
 
     public DocumentProcessingService(KnowledgeDocumentService documents, KnowledgeChunkRepository chunks,
                                      DocumentTextExtractor extractor, DocumentChunker chunker, EmbeddingPort embeddings) {
-        this(documents, chunks, extractor, chunker, embeddings, null);
+        this(documents, chunks, extractor, chunker, embeddings, null, null);
     }
 
     @Inject
     public DocumentProcessingService(KnowledgeDocumentService documents, KnowledgeChunkRepository chunks,
                                      DocumentTextExtractor extractor, DocumentChunker chunker, EmbeddingPort embeddings,
-                                     ApplicationMetrics metrics) {
+                                     ApplicationMetrics metrics,
+                                     ApplicationTracing tracing) {
         this.documents = documents;
         this.chunks = chunks;
         this.extractor = extractor;
         this.chunker = chunker;
         this.embeddings = embeddings;
         this.metrics = metrics;
+        this.tracing = tracing;
     }
 
     @Transactional
     public KnowledgeDocumentVersion process(Long documentId) {
+        if (tracing == null) {
+            return processInternal(documentId);
+        }
+        return tracing.trace("rag.document.processing", "rag-document-processing",
+                () -> processInternal(documentId));
+    }
+
+    private KnowledgeDocumentVersion processInternal(Long documentId) {
         KnowledgeDocumentVersion version = documents.current(documentId);
         version.startProcessing();
         try {

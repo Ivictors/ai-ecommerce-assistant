@@ -9,6 +9,7 @@ import jakarta.inject.Inject;
 import com.victor.ecommerce.application.knowledge.KnowledgeRetriever;
 import com.victor.ecommerce.application.knowledge.RetrievedKnowledge;
 import com.victor.ecommerce.application.observability.ApplicationMetrics;
+import com.victor.ecommerce.application.observability.ApplicationTracing;
 import com.victor.ecommerce.application.order.OrderService;
 import com.victor.ecommerce.application.product.ProductService;
 import com.victor.ecommerce.presentation.rest.chat.*;
@@ -24,6 +25,7 @@ public class ChatApplicationService {
     private final ProductService productService;
     private final OrderService orderService;
     private final ApplicationMetrics metrics;
+    private final ApplicationTracing tracing;
 
     @Inject
     public ChatApplicationService(
@@ -34,7 +36,8 @@ public class ChatApplicationService {
             IntentValidator intentValidator,
             ProductService productService,
             OrderService orderService,
-            ApplicationMetrics metrics) {
+            ApplicationMetrics metrics,
+            ApplicationTracing tracing) {
         this.assistant = assistant;
         this.conversationService = conversationService;
         this.currentUserService = currentUserService;
@@ -43,6 +46,7 @@ public class ChatApplicationService {
         this.productService = productService;
         this.orderService = orderService;
         this.metrics = metrics;
+        this.tracing = tracing;
     }
 
     public ChatApplicationService(EcommerceAssistant assistant, ConversationService conversationService,
@@ -52,7 +56,7 @@ public class ChatApplicationService {
 
     public ChatApplicationService(EcommerceAssistant assistant, ConversationService conversationService,
                                   CurrentUserService currentUserService, KnowledgeRetriever knowledgeRetriever) {
-        this(assistant, conversationService, currentUserService, knowledgeRetriever, new IntentValidator(), null, null, null);
+        this(assistant, conversationService, currentUserService, knowledgeRetriever, new IntentValidator(), null, null, null, null);
     }
 
     public ChatApplicationService(
@@ -64,7 +68,7 @@ public class ChatApplicationService {
             ProductService productService,
             OrderService orderService) {
         this(assistant, conversationService, currentUserService, knowledgeRetriever, intentValidator,
-                productService, orderService, null);
+                productService, orderService, null, null);
     }
 
     public ChatResponse chat(Long conversationId, String message) {
@@ -91,7 +95,8 @@ public class ChatApplicationService {
                     .map(order -> ChatResponse.order("Order status", OrderStatusData.from(order)))
                     .orElseGet(() -> ChatResponse.fallback("I could not find that order.")));
         }
-        var knowledge = knowledgeRetriever.retrieve(message);
+        var knowledge = tracing == null ? knowledgeRetriever.retrieve(message)
+                : tracing.trace("chat.rag.retrieval", "rag-retrieval", () -> knowledgeRetriever.retrieve(message));
         if (validatedIntent.type() == IntentType.POLICY_INFORMATION) {
             if (knowledge.isEmpty()) {
                 return recordChatResponse(ChatResponse.fallback("I do not have enough approved knowledge to answer that policy question."));
@@ -119,8 +124,8 @@ public class ChatApplicationService {
 
     private com.victor.ecommerce.infrastructure.ai.dto.UserIntent classify(String message) {
         try {
-            return metrics == null ? assistant.classify(message)
-                    : metrics.recordNvidiaCall("classification", () -> assistant.classify(message));
+            return traceNvidia("classification", () -> metrics == null ? assistant.classify(message)
+                    : metrics.recordNvidiaCall("classification", () -> assistant.classify(message)));
         } catch (RuntimeException exception) {
             throw new AiServiceException("AI provider classification failed", exception);
         }
@@ -128,10 +133,14 @@ public class ChatApplicationService {
 
     private String chatWithAssistant(String memoryId, String message) {
         try {
-            return metrics == null ? assistant.chat(memoryId, message)
-                    : metrics.recordNvidiaCall("chat", () -> assistant.chat(memoryId, message));
+            return traceNvidia("chat", () -> metrics == null ? assistant.chat(memoryId, message)
+                    : metrics.recordNvidiaCall("chat", () -> assistant.chat(memoryId, message)));
         } catch (RuntimeException exception) {
             throw new AiServiceException("AI provider chat failed", exception);
         }
+    }
+
+    private <T> T traceNvidia(String operation, java.util.function.Supplier<T> action) {
+        return tracing == null ? action.get() : tracing.trace("nvidia." + operation, "nvidia-" + operation, action);
     }
 }

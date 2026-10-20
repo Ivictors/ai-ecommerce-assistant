@@ -139,7 +139,22 @@ scrape it.
 The application metrics use bounded tags only: operation names and fixed
 outcomes such as `success` or `failure`. They never include emails, tokens,
 prompts, document contents, private data, or unbounded identifiers. Tracing
-with OpenTelemetry/Jaeger is intentionally a later issue.
+with OpenTelemetry/Jaeger is available as a separate local stack:
+
+```powershell
+docker compose -f docker-compose.tracing.yml up -d
+```
+
+The Jaeger UI is available at `http://localhost:16686`. The backend sends
+OTLP/gRPC traces to `http://localhost:4317` by default; override
+`OTEL_EXPORTER_OTLP_TRACES_ENDPOINT` when Jaeger is hosted elsewhere. REST
+requests are traced automatically by Quarkus, while chat classification,
+NVIDIA calls, and RAG processing receive explicit child spans. The existing
+`X-Request-ID` is attached as a bounded correlation attribute. Prompts,
+document content, credentials, tokens, emails, and provider keys are never
+added to spans. Test execution disables trace export so the automated suite
+remains independent of a running Jaeger instance; the local Jaeger stack is
+used for development and smoke validation.
 
 ## Main HTTP contracts
 

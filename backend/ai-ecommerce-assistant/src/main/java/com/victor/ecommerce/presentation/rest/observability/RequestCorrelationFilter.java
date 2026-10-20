@@ -1,5 +1,6 @@
 package com.victor.ecommerce.presentation.rest.observability;
 
+import io.opentelemetry.api.trace.Span;
 import jakarta.ws.rs.container.ContainerRequestContext;
 import jakarta.ws.rs.container.ContainerRequestFilter;
 import jakarta.ws.rs.container.ContainerResponseContext;
@@ -28,6 +29,7 @@ public class RequestCorrelationFilter implements ContainerRequestFilter, Contain
                 ? suppliedId
                 : UUID.randomUUID().toString();
         requestContext.setProperty(PROPERTY_NAME, requestId);
+        Span.current().setAttribute("request.correlation_id", requestId);
     }
 
     @Override
