@@ -178,6 +178,15 @@ Coverage is currently reported as a baseline. It is used to identify critical
 paths that need stronger tests; no arbitrary global percentage gate is enforced
 yet.
 
+Every push to `main` and every pull request targeting `main` runs the GitHub
+Actions workflow in `.github/workflows/ci.yml`. It validates Java 21 with the
+PostgreSQL/pgvector service, Angular tests and production build, npm audit,
+formatting, TypeScript, Docker Compose configuration, and tracked-secret
+patterns. Reports are uploaded as workflow artifacts when available. The
+workflow does not deploy automatically and uses only CI-local database values;
+NVIDIA credentials are not required because the backend tests use provider
+placeholders and do not make live model calls.
+
 Run backend tests from `backend/ai-ecommerce-assistant`:
 
 ```powershell

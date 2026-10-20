@@ -1,0 +1,145 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  backend:
+    name: Backend tests and coverage
+    runs-on: ubuntu-latest
+    services:
+      postgres:
+        image: pgvector/pgvector:pg16
+        env:
+          POSTGRES_DB: ecommerce
+          POSTGRES_USER: ecommerce
+          POSTGRES_PASSWORD: ci-only-password
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U ecommerce -d ecommerce"
+          --health-interval 5s
+          --health-timeout 5s
+          --health-retries 20
+    defaults:
+      run:
+        working-directory: backend/ai-ecommerce-assistant
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Java 21
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '21'
+          cache: maven
+
+      - name: Run unit tests without PostgreSQL
+        run: bash ./mvnw test
+
+      - name: Run PostgreSQL integration tests
+        run: bash ./mvnw -Pintegration-tests test
+
+      - name: Run full backend validation and build
+        run: bash ./mvnw -Pfull-validation verify
+
+      - name: Upload backend reports
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: backend-reports
+          path: |
+            backend/ai-ecommerce-assistant/target/surefire-reports
+            backend/ai-ecommerce-assistant/target/failsafe-reports
+            backend/ai-ecommerce-assistant/target/jacoco-report
+          if-no-files-found: warn
+
+  frontend:
+    name: Frontend tests and build
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: frontend/ai-ecommerce-assistant
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Node.js 22
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: npm
+          cache-dependency-path: frontend/ai-ecommerce-assistant/package-lock.json
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Run frontend tests
+        run: npm run test:ci
+
+      - name: Generate frontend coverage
+        run: npm run coverage
+
+      - name: Run TypeScript check
+        run: npm run typecheck
+
+      - name: Check formatting
+        run: npm run format:check
+
+      - name: Build production bundle
+        run: npm run build
+
+      - name: Audit dependencies
+        run: npm audit --audit-level=high
+
+      - name: Upload frontend reports
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: frontend-reports
+          path: |
+            frontend/ai-ecommerce-assistant/coverage
+            frontend/ai-ecommerce-assistant/dist
+          if-no-files-found: warn
+
+  repository-safety:
+    name: Repository safety checks
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Reject tracked sensitive files
+        shell: bash
+        run: |
+          set -euo pipefail
+          sensitive_files="$(git ls-files | grep -E '(^|/)(\.env|\.env\..*|.*\.(pem|key|p12|jks))$' || true)"
+          if [ -n "$sensitive_files" ]; then
+            echo "Tracked sensitive files detected:"
+            echo "$sensitive_files"
+            exit 1
+          fi
+
+      - name: Reject obvious credential patterns
+        shell: bash
+        run: |
+          set -euo pipefail
+          if git grep -n -I -E '(sk-[A-Za-z0-9]{20,}|nvapi-[A-Za-z0-9_-]{20,}|-----BEGIN [A-Z ]*PRIVATE KEY-----)' -- ':!*.md' ':!**/src/test/**'; then
+            echo "Obvious credential pattern detected in tracked source files."
+            exit 1
+          fi
+
+      - name: Validate Docker Compose configuration
+        env:
+          POSTGRES_DB: ecommerce
+          POSTGRES_USER: ecommerce
+          POSTGRES_PASSWORD: ci-only-password
+        run: docker compose config
