@@ -12,8 +12,9 @@ prices, inventory, authorization, payments, or order state.
 The project provides administrator bootstrap, user registration, Argon2id password
 hashing, RSA-signed JWT access tokens, role-based authorization, conversation
 ownership, product and order consultation, structured chat responses, scoped
-RAG documents, Angular screens, correlation IDs, health endpoints, and local
-container definitions.
+RAG documents, Angular screens, correlation IDs, health endpoints, Micrometer
+metrics, Prometheus/Grafana dashboards, OpenTelemetry/Jaeger tracing, JaCoCo
+coverage reporting, CI quality gates, and local container definitions.
 
 Refresh tokens, password recovery, checkout, payments, advanced inventory,
 promotions, returns, and reports are not implemented and are tracked separately.
@@ -69,7 +70,13 @@ Create an untracked `.env` file at the repository root:
 POSTGRES_DB=ecommerce
 POSTGRES_USER=ecommerce
 POSTGRES_PASSWORD=change-me-locally
+NVIDIA_API_KEY=set-locally
 ```
+
+For local JWT signing, provide the RSA key files expected by the backend
+(`privateKey.pem` and `publicKey.pem`) or configure
+`JWT_PRIVATE_KEY_LOCATION` and `JWT_PUBLIC_KEY_LOCATION`. The container stack
+uses `JWT_KEYS_DIR` to mount those files read-only.
 
 ## Local execution
 
@@ -162,13 +169,18 @@ used for development and smoke validation.
 | --- | --- | --- |
 | `POST` | `/api/auth/register` | Register a user with a `USER` role |
 | `POST` | `/api/auth/login` | Authenticate and obtain an access token |
+| `POST` | `/api/products` | Create a product as an administrator |
 | `GET` | `/api/products` | List products |
 | `GET` | `/api/products/{id}` | Retrieve a product |
+| `DELETE` | `/api/products/{id}` | Remove a product as an administrator |
 | `GET` | `/api/orders` | List orders owned by the authenticated user |
 | `GET` | `/api/orders/{id}` | Retrieve an authorized order |
 | `GET/POST` | `/api/conversations` | List or create owned conversations |
 | `POST` | `/api/chat?conversationId={id}` | Chat in an owned conversation |
 | `POST` | `/api/knowledge-documents` | Upload a document as an administrator |
+| `POST` | `/api/knowledge-documents/{id}/process` | Process a document synchronously |
+| `POST` | `/api/knowledge-documents/{id}/unpublish` | Unpublish a document |
+| `DELETE` | `/api/knowledge-documents/{id}` | Remove an unpublished document |
 
 The detailed contract is maintained in `specs/CONTRACT.md` and the relevant
 feature specifications under `.specs/`.
@@ -181,9 +193,8 @@ The latest local validation recorded in the repository is:
 - frontend `npm run coverage`: 51 tests passed; baseline coverage is 90.89%
   statements, 92% branches, 75% functions, and 93.18% lines;
 - frontend `npm run typecheck` and `npm run format:check`: passed;
-- backend `mvnw.cmd -Pfull-validation verify`: 114 tests passed, 0 failed;
-- backend JaCoCo baseline from `target/jacoco-report`: 76.16% lines, 52.38%
-  branches, and 74.21% instructions;
+- backend `mvnw.cmd -Pfull-validation verify`: 120 tests passed, 0 failed;
+- backend JaCoCo reports are generated during validation and uploaded by CI;
 - browser acceptance and live NVIDIA/RAG validation remain pending in issues
   [#50](https://github.com/Ivictors/ai-ecommerce-assistant/issues/50) and
   [#57](https://github.com/Ivictors/ai-ecommerce-assistant/issues/57);
@@ -194,7 +205,9 @@ The latest local validation recorded in the repository is:
 The current Maven profile executes database-backed integration tests through
 Surefire and intentionally skips Failsafe integration-test execution. Browser
 manual acceptance and live AI/RAG quality validation are tracked in issue #50;
-test execution separation was implemented in issue #52.
+test execution separation was implemented in issue #52. OpenTelemetry export
+is disabled in the test profile so automated tests do not require Jaeger or
+network access.
 
 Quality commands:
 
@@ -210,9 +223,9 @@ npm run typecheck
 npm run format:check
 ```
 
-Coverage is currently reported as a baseline. It is used to identify critical
-paths that need stronger tests; no arbitrary global percentage gate is enforced
-yet.
+Coverage is reported as a quality signal through JaCoCo for the backend and
+Vitest coverage for the frontend. It is used to identify critical paths that
+need stronger tests; no arbitrary global percentage gate is enforced yet.
 
 Every push to `main` and every pull request targeting `main` runs the GitHub
 Actions workflow in `.github/workflows/ci.yml`. It validates Java 21 with the
@@ -260,11 +273,13 @@ specs/                           contracts and development process
 .specs/                          feature specifications and evidence
 docker-compose.yml               PostgreSQL and pgvector
 docker-compose.mvp.yml           local three-service container stack
+docker-compose.observability.yml Prometheus and Grafana
+docker-compose.tracing.yml       Jaeger and OTLP collector
 ```
 
 ## Status
 
 The project is ready for repository-level review and local demonstration.
-Official production delivery is not authorized yet. Production hardening, CI quality
-gates, browser/live-provider acceptance, refresh-token lifecycle, password
-recovery, and transactional commerce remain tracked in GitHub Issues.
+Official production delivery is not authorized yet. Production hardening,
+browser/live-provider acceptance, refresh-token lifecycle, password recovery,
+and transactional commerce remain tracked in GitHub Issues.
