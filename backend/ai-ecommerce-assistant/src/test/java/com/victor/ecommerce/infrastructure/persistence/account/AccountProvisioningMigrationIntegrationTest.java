@@ -9,6 +9,7 @@ import org.flywaydb.core.api.MigrationVersion;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.Tag;
 import org.postgresql.ds.PGSimpleDataSource;
 
 import javax.sql.DataSource;
@@ -21,6 +22,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 
 @QuarkusTest
 @TestProfile(ConversationCreationIntegrationTestProfile.class)
+@Tag("integration")
 class AccountProvisioningMigrationIntegrationTest {
 
     private static final String[] SEEDED_EMAILS = {

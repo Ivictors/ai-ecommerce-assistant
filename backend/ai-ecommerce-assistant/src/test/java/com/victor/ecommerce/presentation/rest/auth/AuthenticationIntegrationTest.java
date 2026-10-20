@@ -12,6 +12,7 @@ import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.Tag;
 
 import javax.sql.DataSource;
 import java.net.URI;
@@ -27,6 +28,7 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 @QuarkusTest
 @TestProfile(AuthenticationIntegrationTestProfile.class)
+@Tag("integration")
 class AuthenticationIntegrationTest {
 
     private static final String TEST_PASSWORD = "integration-test-password";

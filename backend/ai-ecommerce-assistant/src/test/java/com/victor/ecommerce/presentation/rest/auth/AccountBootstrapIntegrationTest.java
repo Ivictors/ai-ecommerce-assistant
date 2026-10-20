@@ -13,6 +13,7 @@ import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.Tag;
 
 import javax.sql.DataSource;
 import java.io.ByteArrayOutputStream;
@@ -34,7 +35,8 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 @QuarkusTest
-@TestProfile(AuthenticationIntegrationTestProfile.class)
+@TestProfile(AccountBootstrapIntegrationTestProfile.class)
+@Tag("integration")
 class AccountBootstrapIntegrationTest {
 
     private static final HttpClient HTTP_CLIENT = HttpClient.newHttpClient();
@@ -73,7 +75,7 @@ class AccountBootstrapIntegrationTest {
 
     @AfterAll
     static void removeTemporarySigningKeys() throws Exception {
-        AuthenticationIntegrationTestProfile.deleteTemporaryKeys();
+        AccountBootstrapIntegrationTestProfile.cleanUp();
     }
 
     @Test

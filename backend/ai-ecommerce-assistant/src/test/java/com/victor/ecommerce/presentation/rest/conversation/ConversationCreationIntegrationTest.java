@@ -11,6 +11,7 @@ import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.Tag;
 
 import javax.sql.DataSource;
 import java.net.URI;
@@ -25,6 +26,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 
 @QuarkusTest
 @TestProfile(ConversationCreationIntegrationTestProfile.class)
+@Tag("integration")
 class ConversationCreationIntegrationTest {
 
     private static final HttpClient HTTP_CLIENT = HttpClient.newHttpClient();

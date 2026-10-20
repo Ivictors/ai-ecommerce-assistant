@@ -40,6 +40,7 @@ import static org.junit.jupiter.api.Assertions.fail;
 
 @QuarkusTest
 @TestProfile(AccountBootstrapPersistenceTestProfile.class)
+@Tag("integration")
 class AccountBootstrapPersistenceTest {
 
     @Inject

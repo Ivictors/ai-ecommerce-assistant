@@ -158,6 +158,25 @@ Surefire and intentionally skips Failsafe integration-test execution. Browser
 manual acceptance and live AI/RAG quality validation are tracked in issue #50;
 test execution separation is tracked in issue #52.
 
+Run backend tests from `backend/ai-ecommerce-assistant`:
+
+```powershell
+# Unit tests; does not require PostgreSQL
+.\mvnw.cmd test
+
+# Database-backed integration tests; requires PostgreSQL/pgvector
+.\mvnw.cmd -Pintegration-tests test
+
+# All Quarkus tests in the Surefire-based validation profile
+.\mvnw.cmd -Pfull-validation verify
+```
+
+The default `unit-tests` profile excludes database-backed classes explicitly so
+their static test setup cannot open a PostgreSQL connection before JUnit tag
+filtering. The `integration-tests` profile includes those classes deliberately.
+Failsafe remains reserved for future `@QuarkusIntegrationTest` execution of the
+packaged application.
+
 ## Engineering workflow
 
 The repository uses a lightweight issue-driven workflow for ongoing work. Each
