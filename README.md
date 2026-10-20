@@ -120,6 +120,27 @@ docker compose -f docker-compose.mvp.yml up -d
 
 The backend health endpoints are `/q/health/live` and `/q/health/ready`.
 
+## Observability locally
+
+The backend exports Micrometer metrics in Prometheus format at
+`http://localhost:8080/q/metrics`. Start the local Prometheus and Grafana
+stack from the repository root with:
+
+```powershell
+docker compose -f docker-compose.observability.yml up -d
+```
+
+Prometheus is available at `http://localhost:9090` and Grafana at
+`http://localhost:3000` (`admin` / `admin` for this local-only setup). Grafana
+provisions the Prometheus datasource and the `AI E-Commerce Overview`
+dashboard automatically. The backend must already be running for Prometheus to
+scrape it.
+
+The application metrics use bounded tags only: operation names and fixed
+outcomes such as `success` or `failure`. They never include emails, tokens,
+prompts, document contents, private data, or unbounded identifiers. Tracing
+with OpenTelemetry/Jaeger is intentionally a later issue.
+
 ## Main HTTP contracts
 
 | Method | Route | Purpose |

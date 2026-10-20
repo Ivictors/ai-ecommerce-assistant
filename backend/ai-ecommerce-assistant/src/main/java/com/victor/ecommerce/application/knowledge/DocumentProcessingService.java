@@ -3,7 +3,9 @@ package com.victor.ecommerce.application.knowledge;
 import com.victor.ecommerce.domain.knowledge.KnowledgeChunk;
 import com.victor.ecommerce.domain.knowledge.KnowledgeDocumentVersion;
 import com.victor.ecommerce.infrastructure.persistence.knowledge.KnowledgeChunkRepository;
+import com.victor.ecommerce.application.observability.ApplicationMetrics;
 import jakarta.enterprise.context.ApplicationScoped;
+import jakarta.inject.Inject;
 import jakarta.transaction.Transactional;
 
 @ApplicationScoped
@@ -13,14 +15,23 @@ public class DocumentProcessingService {
     private final DocumentTextExtractor extractor;
     private final DocumentChunker chunker;
     private final EmbeddingPort embeddings;
+    private final ApplicationMetrics metrics;
 
     public DocumentProcessingService(KnowledgeDocumentService documents, KnowledgeChunkRepository chunks,
                                      DocumentTextExtractor extractor, DocumentChunker chunker, EmbeddingPort embeddings) {
+        this(documents, chunks, extractor, chunker, embeddings, null);
+    }
+
+    @Inject
+    public DocumentProcessingService(KnowledgeDocumentService documents, KnowledgeChunkRepository chunks,
+                                     DocumentTextExtractor extractor, DocumentChunker chunker, EmbeddingPort embeddings,
+                                     ApplicationMetrics metrics) {
         this.documents = documents;
         this.chunks = chunks;
         this.extractor = extractor;
         this.chunker = chunker;
         this.embeddings = embeddings;
+        this.metrics = metrics;
     }
 
     @Transactional
@@ -38,9 +49,15 @@ public class DocumentProcessingService {
                 chunks.persist(new KnowledgeChunk(version, i, parts.get(i), embeddings.embed(parts.get(i))));
             }
             version.markReady();
+            if (metrics != null) {
+                metrics.recordRagProcessing("success");
+            }
             return version;
         } catch (RuntimeException exception) {
             version.markFailed("Document processing failed");
+            if (metrics != null) {
+                metrics.recordRagProcessing("failure");
+            }
             throw new DocumentProcessingException("The document could not be processed", exception);
         }
     }
