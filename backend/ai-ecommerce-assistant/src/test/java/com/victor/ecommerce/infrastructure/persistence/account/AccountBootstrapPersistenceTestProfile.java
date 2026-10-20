@@ -27,6 +27,7 @@ public class AccountBootstrapPersistenceTestProfile implements QuarkusTestProfil
             dataSource.setUser(config.getOptionalValue("quarkus.datasource.username", String.class).orElse("ecommerce"));
             dataSource.setPassword(config.getOptionalValue("quarkus.datasource.password", String.class).orElse("ecommerce"));
             try (var connection = dataSource.getConnection(); var statement = connection.createStatement()) {
+                statement.execute("CREATE EXTENSION IF NOT EXISTS vector SCHEMA public");
                 statement.execute("CREATE SCHEMA " + SCHEMA);
             }
 

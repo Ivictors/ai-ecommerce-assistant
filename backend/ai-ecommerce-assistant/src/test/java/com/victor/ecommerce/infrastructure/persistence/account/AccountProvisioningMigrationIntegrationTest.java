@@ -45,6 +45,7 @@ class AccountProvisioningMigrationIntegrationTest {
 
         schemaName = "account_provisioning_test_" + UUID.randomUUID().toString().replace("-", "");
         try (var connection = migrationDataSource.getConnection(); var statement = connection.createStatement()) {
+            statement.execute("CREATE EXTENSION IF NOT EXISTS vector SCHEMA public");
             statement.execute("CREATE SCHEMA " + schemaName);
         }
         flyway(MigrationVersion.fromVersion("6")).migrate();
