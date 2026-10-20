@@ -24,7 +24,12 @@ describe('ApiErrorService', () => {
   }
 
   it('does not expose backend detail text as the user message', () => {
-    service.publish(new HttpErrorResponse({ status: 500, error: { code: 'INTERNAL_ERROR', message: 'SQL secret' } }));
+    service.publish(
+      new HttpErrorResponse({
+        status: 500,
+        error: { code: 'INTERNAL_ERROR', message: 'SQL secret' },
+      }),
+    );
     expect(service.error()?.message).not.toContain('SQL secret');
   });
 });

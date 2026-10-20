@@ -1,9 +1,5 @@
 export type ChatResponseType =
-  | 'TEXT'
-  | 'PRODUCT_INFORMATION'
-  | 'ORDER_STATUS'
-  | 'POLICY_INFORMATION'
-  | 'FALLBACK';
+  'TEXT' | 'PRODUCT_INFORMATION' | 'ORDER_STATUS' | 'POLICY_INFORMATION' | 'FALLBACK';
 
 export interface ProductInformationData {
   id: number;

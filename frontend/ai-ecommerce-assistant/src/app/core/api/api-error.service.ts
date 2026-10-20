@@ -27,13 +27,15 @@ export class ApiErrorService {
   }
 
   private safeMessage(status: number): string {
-    return {
-      401: 'Your session has expired. Please sign in again.',
-      403: 'You are not allowed to perform this action.',
-      404: 'The requested resource was not found.',
-      409: 'The operation conflicts with the current state.',
-      422: 'The submitted data is invalid.',
-      500: 'The service could not complete the request.',
-    }[status] ?? 'The request could not be completed.';
+    return (
+      {
+        401: 'Your session has expired. Please sign in again.',
+        403: 'You are not allowed to perform this action.',
+        404: 'The requested resource was not found.',
+        409: 'The operation conflicts with the current state.',
+        422: 'The submitted data is invalid.',
+        500: 'The service could not complete the request.',
+      }[status] ?? 'The request could not be completed.'
+    );
   }
 }

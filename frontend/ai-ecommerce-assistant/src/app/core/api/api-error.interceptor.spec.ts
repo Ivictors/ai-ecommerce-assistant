@@ -37,7 +37,9 @@ describe('apiErrorInterceptor', () => {
     const navigate = vi.spyOn(router, 'navigateByUrl').mockResolvedValue(true);
     auth.setAccessToken('stale-token');
     client.get('/api/private').subscribe({ error: () => undefined });
-    http.expectOne('/api/private').flush({ code: 'UNAUTHENTICATED' }, { status: 401, statusText: 'Unauthorized' });
+    http
+      .expectOne('/api/private')
+      .flush({ code: 'UNAUTHENTICATED' }, { status: 401, statusText: 'Unauthorized' });
 
     expect(auth.getAccessToken()).toBeNull();
     expect(navigate).toHaveBeenCalledWith('/login');
@@ -47,7 +49,9 @@ describe('apiErrorInterceptor', () => {
   it('preserves a 403 session and publishes a safe error', () => {
     auth.setAccessToken('token');
     client.get('/api/admin').subscribe({ error: () => undefined });
-    http.expectOne('/api/admin').flush({ code: 'FORBIDDEN' }, { status: 403, statusText: 'Forbidden' });
+    http
+      .expectOne('/api/admin')
+      .flush({ code: 'FORBIDDEN' }, { status: 403, statusText: 'Forbidden' });
 
     expect(auth.getAccessToken()).toBe('token');
     expect(errors.error()?.message).toContain('not allowed');

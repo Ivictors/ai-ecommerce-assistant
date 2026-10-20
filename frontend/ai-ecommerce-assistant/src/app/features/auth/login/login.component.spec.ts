@@ -53,19 +53,25 @@ describe('LoginComponent', () => {
     component.form.setValue({ email: 'user@example.com', password: 'wrong' });
     component.submit();
     const request = http.expectOne('/api/auth/login');
-    request.flush({ code: 'UNAUTHENTICATED', message: 'Authentication failed' }, { status: 401, statusText: 'Unauthorized' });
+    request.flush(
+      { code: 'UNAUTHENTICATED', message: 'Authentication failed' },
+      { status: 401, statusText: 'Unauthorized' },
+    );
     await fixture.whenStable();
     fixture.detectChanges();
 
-    expect(fixture.nativeElement.querySelector('[role="alert"]')?.textContent)
-      .toContain('Unable to sign in');
+    expect(fixture.nativeElement.querySelector('[role="alert"]')?.textContent).toContain(
+      'Unable to sign in',
+    );
     expect(fixture.nativeElement.textContent).not.toContain('Authentication failed');
   });
 
   it('T-002-T4 AC-001 exposes an accessible login form', () => {
     expect(fixture.nativeElement.querySelector('label[for="email"]')).toBeTruthy();
     expect(fixture.nativeElement.querySelector('label[for="password"]')).toBeTruthy();
-    expect(fixture.nativeElement.querySelector('#email[aria-describedby="email-error"]')).toBeTruthy();
+    expect(
+      fixture.nativeElement.querySelector('#email[aria-describedby="email-error"]'),
+    ).toBeTruthy();
     expect(fixture.nativeElement.querySelector('button[type="submit"]')).toBeTruthy();
   });
 
@@ -80,7 +86,9 @@ describe('LoginComponent', () => {
     fixture.detectChanges();
 
     expect(fixture.nativeElement.querySelector('button[type="submit"]').disabled).toBe(true);
-    http.expectOne('/api/auth/login').flush({ accessToken: 'jwt-value', tokenType: 'Bearer', expiresIn: 900 });
+    http
+      .expectOne('/api/auth/login')
+      .flush({ accessToken: 'jwt-value', tokenType: 'Bearer', expiresIn: 900 });
   });
 
   it('keeps provider failure details out of the interface', async () => {
@@ -91,11 +99,15 @@ describe('LoginComponent', () => {
     };
     component.form.setValue({ email: 'user@example.com', password: 'secret' });
     component.submit();
-    http.expectOne('/api/auth/login').flush({ message: 'provider secret' }, { status: 500, statusText: 'Server Error' });
+    http
+      .expectOne('/api/auth/login')
+      .flush({ message: 'provider secret' }, { status: 500, statusText: 'Server Error' });
     await fixture.whenStable();
     fixture.detectChanges();
 
-    expect(fixture.nativeElement.querySelector('[role="alert"]')?.textContent).toContain('Unable to sign in');
+    expect(fixture.nativeElement.querySelector('[role="alert"]')?.textContent).toContain(
+      'Unable to sign in',
+    );
     expect(fixture.nativeElement.textContent).not.toContain('provider secret');
   });
 });

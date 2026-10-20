@@ -26,7 +26,9 @@ describe('AuthService', () => {
   });
 
   it('T-001-T1 AC-001 logs in and stores only the returned access token', async () => {
-    const result = firstValueFrom(login(service, { email: 'user@example.com', password: 'secret' }));
+    const result = firstValueFrom(
+      login(service, { email: 'user@example.com', password: 'secret' }),
+    );
 
     const request = http.expectOne('/api/auth/login');
     expect(request.request.method).toBe('POST');
@@ -45,14 +47,19 @@ describe('AuthService', () => {
   it('T-001-T2 AC-002 does not create a session after authentication failure', async () => {
     const result = firstValueFrom(login(service, { email: 'user@example.com', password: 'wrong' }));
     const request = http.expectOne('/api/auth/login');
-    request.flush({ code: 'UNAUTHENTICATED', message: 'Authentication failed' }, { status: 401, statusText: 'Unauthorized' });
+    request.flush(
+      { code: 'UNAUTHENTICATED', message: 'Authentication failed' },
+      { status: 401, statusText: 'Unauthorized' },
+    );
 
     await expect(result).rejects.toBeTruthy();
     expect(service.getAccessToken()).toBeNull();
   });
 
   it('T-001-T3 AC-006 rejects a successful response without a non-empty access token', async () => {
-    const result = firstValueFrom(login(service, { email: 'user@example.com', password: 'secret' }));
+    const result = firstValueFrom(
+      login(service, { email: 'user@example.com', password: 'secret' }),
+    );
     const request = http.expectOne('/api/auth/login');
     request.flush({ accessToken: '', tokenType: 'Bearer', expiresIn: 900 });
 
@@ -61,15 +68,18 @@ describe('AuthService', () => {
   });
 
   it('T-001-T4 AC-008 never stores the submitted password', async () => {
-    const result = firstValueFrom(login(service, { email: 'user@example.com', password: 'secret-value' }));
+    const result = firstValueFrom(
+      login(service, { email: 'user@example.com', password: 'secret-value' }),
+    );
     const request = http.expectOne('/api/auth/login');
     request.flush({ accessToken: 'jwt-value', tokenType: 'Bearer', expiresIn: 900 });
     await result;
 
     expect(sessionStorage.getItem('ai-ecommerce.access-token')).toBe('jwt-value');
     expect(sessionStorage.getItem('password')).toBeNull();
-    expect(Array.from({ length: sessionStorage.length }, (_, index) => sessionStorage.key(index)))
-      .not.toContain('secret-value');
+    expect(
+      Array.from({ length: sessionStorage.length }, (_, index) => sessionStorage.key(index)),
+    ).not.toContain('secret-value');
   });
 });
 

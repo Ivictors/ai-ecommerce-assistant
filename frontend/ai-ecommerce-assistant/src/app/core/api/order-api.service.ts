@@ -6,6 +6,10 @@ import { Order } from '../models/order.model';
 @Injectable({ providedIn: 'root' })
 export class OrderApiService {
   private readonly http = inject(HttpClient);
-  findMine(): Observable<Order[]> { return this.http.get<Order[]>('/api/orders'); }
-  findById(id: number): Observable<Order> { return this.http.get<Order>(`/api/orders/${id}`); }
+  findMine(): Observable<Order[]> {
+    return this.http.get<Order[]>('/api/orders');
+  }
+  findById(id: number): Observable<Order> {
+    return this.http.get<Order>(`/api/orders/${id}`);
+  }
 }

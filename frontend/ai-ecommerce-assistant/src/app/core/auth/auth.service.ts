@@ -1,7 +1,12 @@
 import { HttpClient } from '@angular/common/http';
 import { Injectable, inject } from '@angular/core';
 import { Observable, catchError, map, tap, throwError } from 'rxjs';
-import { LoginRequest, LoginResponse, RegistrationRequest, RegistrationResponse } from './auth.model';
+import {
+  LoginRequest,
+  LoginResponse,
+  RegistrationRequest,
+  RegistrationResponse,
+} from './auth.model';
 
 const ACCESS_TOKEN_KEY = 'ai-ecommerce.access-token';
 

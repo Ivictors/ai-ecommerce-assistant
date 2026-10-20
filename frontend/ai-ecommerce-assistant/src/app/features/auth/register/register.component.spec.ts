@@ -24,7 +24,14 @@ describe('RegisterComponent', () => {
 
   it('does not submit when passwords differ', () => {
     const component = fixture.componentInstance as unknown as {
-      form: { setValue: (value: { name: string; email: string; password: string; passwordConfirmation: string }) => void };
+      form: {
+        setValue: (value: {
+          name: string;
+          email: string;
+          password: string;
+          passwordConfirmation: string;
+        }) => void;
+      };
       submit: () => void;
     };
     component.form.setValue({
@@ -38,14 +45,22 @@ describe('RegisterComponent', () => {
     fixture.detectChanges();
 
     expect(http.match('/api/auth/register')).toHaveLength(0);
-    expect(fixture.nativeElement.querySelector('[role="alert"]')?.textContent)
-      .toContain('must match');
+    expect(fixture.nativeElement.querySelector('[role="alert"]')?.textContent).toContain(
+      'must match',
+    );
   });
 
   it('registers the user and navigates to login', async () => {
     const navigate = vi.spyOn(router, 'navigateByUrl').mockResolvedValue(true);
     const component = fixture.componentInstance as unknown as {
-      form: { setValue: (value: { name: string; email: string; password: string; passwordConfirmation: string }) => void };
+      form: {
+        setValue: (value: {
+          name: string;
+          email: string;
+          password: string;
+          passwordConfirmation: string;
+        }) => void;
+      };
       submit: () => void;
     };
     component.form.setValue({
@@ -73,7 +88,14 @@ describe('RegisterComponent', () => {
 
   it('shows a duplicate email error', async () => {
     const component = fixture.componentInstance as unknown as {
-      form: { setValue: (value: { name: string; email: string; password: string; passwordConfirmation: string }) => void };
+      form: {
+        setValue: (value: {
+          name: string;
+          email: string;
+          password: string;
+          passwordConfirmation: string;
+        }) => void;
+      };
       submit: () => void;
     };
     component.form.setValue({
@@ -84,13 +106,16 @@ describe('RegisterComponent', () => {
     });
     component.submit();
     const request = http.expectOne('/api/auth/register');
-    request.flush({ code: 'EMAIL_ALREADY_REGISTERED', message: 'Email is already registered' },
-      { status: 409, statusText: 'Conflict' });
+    request.flush(
+      { code: 'EMAIL_ALREADY_REGISTERED', message: 'Email is already registered' },
+      { status: 409, statusText: 'Conflict' },
+    );
     await fixture.whenStable();
     fixture.detectChanges();
 
-    expect(fixture.nativeElement.querySelector('[role="alert"]')?.textContent)
-      .toContain('already registered');
+    expect(fixture.nativeElement.querySelector('[role="alert"]')?.textContent).toContain(
+      'already registered',
+    );
   });
 
   it('renders field-level errors and accessible associations', () => {
@@ -98,16 +123,28 @@ describe('RegisterComponent', () => {
     form.dispatchEvent(new Event('submit'));
     fixture.detectChanges();
 
-    expect(fixture.nativeElement.querySelector('#name[aria-describedby="name-error"]')).toBeTruthy();
-    expect(fixture.nativeElement.querySelector('#email-error')?.textContent).toContain('valid email');
-    expect(fixture.nativeElement.querySelector('#password-confirmation-error')?.textContent)
-      .toContain('confirmation is required');
+    expect(
+      fixture.nativeElement.querySelector('#name[aria-describedby="name-error"]'),
+    ).toBeTruthy();
+    expect(fixture.nativeElement.querySelector('#email-error')?.textContent).toContain(
+      'valid email',
+    );
+    expect(
+      fixture.nativeElement.querySelector('#password-confirmation-error')?.textContent,
+    ).toContain('confirmation is required');
   });
 
   it('disables submission while registration is pending', () => {
     vi.spyOn(router, 'navigateByUrl').mockResolvedValue(true);
     const component = fixture.componentInstance as unknown as {
-      form: { setValue: (value: { name: string; email: string; password: string; passwordConfirmation: string }) => void };
+      form: {
+        setValue: (value: {
+          name: string;
+          email: string;
+          password: string;
+          passwordConfirmation: string;
+        }) => void;
+      };
       submit: () => void;
     };
     component.form.setValue({
@@ -120,13 +157,22 @@ describe('RegisterComponent', () => {
     fixture.detectChanges();
 
     expect(fixture.nativeElement.querySelector('button[type="submit"]').disabled).toBe(true);
-    http.expectOne('/api/auth/register').flush({ id: 1, name: 'Test User', email: 'user@example.com', role: 'USER' });
+    http
+      .expectOne('/api/auth/register')
+      .flush({ id: 1, name: 'Test User', email: 'user@example.com', role: 'USER' });
   });
 
   it('uses a safe message for server validation failures', async () => {
     vi.spyOn(router, 'navigateByUrl').mockResolvedValue(true);
     const component = fixture.componentInstance as unknown as {
-      form: { setValue: (value: { name: string; email: string; password: string; passwordConfirmation: string }) => void };
+      form: {
+        setValue: (value: {
+          name: string;
+          email: string;
+          password: string;
+          passwordConfirmation: string;
+        }) => void;
+      };
       submit: () => void;
     };
     component.form.setValue({
@@ -136,12 +182,18 @@ describe('RegisterComponent', () => {
       passwordConfirmation: 'secret',
     });
     component.submit();
-    http.expectOne('/api/auth/register').flush({ message: 'internal database details' }, { status: 422, statusText: 'Unprocessable Entity' });
+    http
+      .expectOne('/api/auth/register')
+      .flush(
+        { message: 'internal database details' },
+        { status: 422, statusText: 'Unprocessable Entity' },
+      );
     await fixture.whenStable();
     fixture.detectChanges();
 
-    expect(fixture.nativeElement.querySelector('[role="alert"]')?.textContent)
-      .toContain('Unable to create account');
+    expect(fixture.nativeElement.querySelector('[role="alert"]')?.textContent).toContain(
+      'Unable to create account',
+    );
     expect(fixture.nativeElement.textContent).not.toContain('internal database details');
   });
 });

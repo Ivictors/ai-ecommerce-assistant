@@ -12,7 +12,8 @@ describe('ProductDetailComponent', () => {
     await TestBed.configureTestingModule({
       imports: [ProductDetailComponent],
       providers: [
-        provideHttpClient(), provideHttpClientTesting(),
+        provideHttpClient(),
+        provideHttpClientTesting(),
         { provide: ActivatedRoute, useValue: { snapshot: { paramMap: { get: () => '7' } } } },
       ],
     }).compileComponents();
@@ -24,7 +25,9 @@ describe('ProductDetailComponent', () => {
   afterEach(() => http.verify());
 
   it('renders backend-owned product details', () => {
-    http.expectOne('/api/products/7').flush({ id: 7, name: 'Coffee', description: 'Fresh', price: 10, stock: 2, active: true });
+    http
+      .expectOne('/api/products/7')
+      .flush({ id: 7, name: 'Coffee', description: 'Fresh', price: 10, stock: 2, active: true });
     fixture.detectChanges();
     expect(fixture.nativeElement.textContent).toContain('Coffee');
   });

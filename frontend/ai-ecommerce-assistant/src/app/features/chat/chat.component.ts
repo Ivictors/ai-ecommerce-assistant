@@ -3,7 +3,12 @@ import { Component, OnInit, inject, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { ActivatedRoute, RouterLink } from '@angular/router';
 import { ChatApiService } from '../../core/api/chat-api.service';
-import { ChatResponse, ProductInformationData, OrderStatusData, PolicyInformationData } from '../../core/models/chat.model';
+import {
+  ChatResponse,
+  ProductInformationData,
+  OrderStatusData,
+  PolicyInformationData,
+} from '../../core/models/chat.model';
 
 @Component({
   selector: 'app-chat',
@@ -28,9 +33,13 @@ import { ChatResponse, ProductInformationData, OrderStatusData, PolicyInformatio
           <article *ngSwitchCase="'POLICY_INFORMATION'" data-testid="policy-response">
             <span>{{ policy(response)?.content }}</span>
           </article>
-          <span *ngSwitchCase="'FALLBACK'" data-testid="fallback-response">More information is needed.</span>
+          <span *ngSwitchCase="'FALLBACK'" data-testid="fallback-response"
+            >More information is needed.</span
+          >
           <span *ngSwitchCase="'TEXT'" data-testid="text-response">{{ response.message }}</span>
-          <span *ngSwitchDefault data-testid="unsupported-response">This response version is not supported.</span>
+          <span *ngSwitchDefault data-testid="unsupported-response"
+            >This response version is not supported.</span
+          >
         </ng-container>
       </section>
       <p *ngIf="error()" role="alert">Unable to send the message.</p>
@@ -72,11 +81,22 @@ export class ChatComponent implements OnInit {
         this.message = '';
         this.loading.set(false);
       },
-      error: () => { this.error.set(true); this.loading.set(false); },
+      error: () => {
+        this.error.set(true);
+        this.loading.set(false);
+      },
     });
   }
 
-  protected product(response: ChatResponse): ProductInformationData | null { return response.type === 'PRODUCT_INFORMATION' ? response.data as ProductInformationData : null; }
-  protected order(response: ChatResponse): OrderStatusData | null { return response.type === 'ORDER_STATUS' ? response.data as OrderStatusData : null; }
-  protected policy(response: ChatResponse): PolicyInformationData | null { return response.type === 'POLICY_INFORMATION' ? response.data as PolicyInformationData : null; }
+  protected product(response: ChatResponse): ProductInformationData | null {
+    return response.type === 'PRODUCT_INFORMATION'
+      ? (response.data as ProductInformationData)
+      : null;
+  }
+  protected order(response: ChatResponse): OrderStatusData | null {
+    return response.type === 'ORDER_STATUS' ? (response.data as OrderStatusData) : null;
+  }
+  protected policy(response: ChatResponse): PolicyInformationData | null {
+    return response.type === 'POLICY_INFORMATION' ? (response.data as PolicyInformationData) : null;
+  }
 }

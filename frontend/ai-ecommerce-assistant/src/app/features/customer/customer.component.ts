@@ -17,15 +17,23 @@ import { Order } from '../../core/models/order.model';
         <h2>Orders</h2>
         <p *ngIf="ordersError()" role="alert">Unable to load orders.</p>
         <p *ngIf="!ordersError() && orders().length === 0">No orders found.</p>
-        <ul><li *ngFor="let order of orders()">Order #{{ order.id }} — {{ order.status }} — {{ order.total }}</li></ul>
+        <ul>
+          <li *ngFor="let order of orders()">
+            Order #{{ order.id }} — {{ order.status }} — {{ order.total }}
+          </li>
+        </ul>
       </section>
       <section>
         <h2>Conversations</h2>
         <p *ngIf="conversationError()" role="alert">Unable to load conversations.</p>
-        <button type="button" (click)="createConversation()" [disabled]="creating()">Start conversation</button>
+        <button type="button" (click)="createConversation()" [disabled]="creating()">
+          Start conversation
+        </button>
         <ul>
           <li *ngFor="let conversation of conversations()">
-            <button type="button" (click)="selectConversation(conversation.id)">Conversation #{{ conversation.id }}</button>
+            <button type="button" (click)="selectConversation(conversation.id)">
+              Conversation #{{ conversation.id }}
+            </button>
           </li>
         </ul>
         <p *ngIf="selectedConversationId() as id">Selected conversation: {{ id }}</p>
@@ -45,8 +53,14 @@ export class CustomerComponent implements OnInit {
   protected readonly conversationError = signal(false);
 
   ngOnInit(): void {
-    this.ordersApi.findMine().subscribe({ next: (items) => this.orders.set(items), error: () => this.ordersError.set(true) });
-    this.conversationsApi.findMine().subscribe({ next: (items) => this.conversations.set(items), error: () => this.conversationError.set(true) });
+    this.ordersApi.findMine().subscribe({
+      next: (items) => this.orders.set(items),
+      error: () => this.ordersError.set(true),
+    });
+    this.conversationsApi.findMine().subscribe({
+      next: (items) => this.conversations.set(items),
+      error: () => this.conversationError.set(true),
+    });
   }
 
   protected selectConversation(id: number): void {
@@ -61,7 +75,10 @@ export class CustomerComponent implements OnInit {
         this.selectedConversationId.set(conversation.id);
         this.creating.set(false);
       },
-      error: () => { this.conversationError.set(true); this.creating.set(false); },
+      error: () => {
+        this.conversationError.set(true);
+        this.creating.set(false);
+      },
     });
   }
 }

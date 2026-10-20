@@ -28,7 +28,9 @@ describe('PrivateComponent', () => {
 
   it('T-004-T2 AC-003 clears the session and navigates to login', async () => {
     const navigate = vi.spyOn(router, 'navigateByUrl').mockResolvedValue(true);
-    const logout = fixture.nativeElement.querySelector('[data-testid="logout"]') as HTMLButtonElement;
+    const logout = fixture.nativeElement.querySelector(
+      '[data-testid="logout"]',
+    ) as HTMLButtonElement;
     logout.click();
     await fixture.whenStable();
 

@@ -141,11 +141,13 @@ feature specifications under `.specs/`.
 
 The latest local validation recorded in the repository is:
 
-- frontend `npm test -- --watch=false`: 51 tests passed in 17 files;
-- frontend `npm run build`: passed;
-- backend `mvnw.cmd clean verify`: 113 tests passed and 1 failed because the
-  shared local database already contains the provisional administrator while
-  the bootstrap test expects an empty administrator set;
+- frontend `npm run test:ci`: 51 tests passed in 17 files;
+- frontend `npm run coverage`: 51 tests passed; baseline coverage is 90.89%
+  statements, 92% branches, 75% functions, and 93.18% lines;
+- frontend `npm run typecheck` and `npm run format:check`: passed;
+- backend `mvnw.cmd -Pfull-validation verify`: 114 tests passed, 0 failed;
+- backend JaCoCo baseline from `target/jacoco-report`: 76.16% lines, 52.38%
+  branches, and 74.21% instructions;
 - browser acceptance and live NVIDIA/RAG validation remain pending in issues
   [#50](https://github.com/Ivictors/ai-ecommerce-assistant/issues/50) and
   [#57](https://github.com/Ivictors/ai-ecommerce-assistant/issues/57);
@@ -156,7 +158,25 @@ The latest local validation recorded in the repository is:
 The current Maven profile executes database-backed integration tests through
 Surefire and intentionally skips Failsafe integration-test execution. Browser
 manual acceptance and live AI/RAG quality validation are tracked in issue #50;
-test execution separation is tracked in issue #52.
+test execution separation was implemented in issue #52.
+
+Quality commands:
+
+```powershell
+cd backend/ai-ecommerce-assistant
+.\mvnw.cmd verify
+.\mvnw.cmd -Pfull-validation verify
+
+cd ../../frontend/ai-ecommerce-assistant
+npm run test:ci
+npm run coverage
+npm run typecheck
+npm run format:check
+```
+
+Coverage is currently reported as a baseline. It is used to identify critical
+paths that need stronger tests; no arbitrary global percentage gate is enforced
+yet.
 
 Run backend tests from `backend/ai-ecommerce-assistant`:
 

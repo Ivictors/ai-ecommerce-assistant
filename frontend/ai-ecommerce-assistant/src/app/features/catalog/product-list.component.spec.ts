@@ -21,7 +21,9 @@ describe('ProductListComponent', () => {
   afterEach(() => http.verify());
 
   it('renders backend-owned product values', () => {
-    http.expectOne('/api/products').flush([{ id: 1, name: 'Coffee', description: 'Fresh', price: 10, stock: 2, active: true }]);
+    http
+      .expectOne('/api/products')
+      .flush([{ id: 1, name: 'Coffee', description: 'Fresh', price: 10, stock: 2, active: true }]);
     fixture.detectChanges();
     expect(fixture.nativeElement.textContent).toContain('Coffee');
     expect(fixture.nativeElement.textContent).toContain('10.00');
